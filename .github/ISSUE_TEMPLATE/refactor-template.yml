@@ -1,0 +1,51 @@
+name: "♻️ 리팩토링 제안"
+description: "기존 코드를 리팩토링하거나 개선할 부분을 제안해주세요."
+title: "[♻️ Refactor] "
+labels: "♻️ Refactor"
+body:
+  - type: input
+    attributes:
+      label: 🧩 리팩토링 대상
+      placeholder: ex) 사용자 서비스 로직
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🔍 리팩토링 사유
+      description: 왜 리팩토링이 필요한지 설명해 주세요.
+      placeholder: |
+        ex) 서비스 로직이 컨트롤러에 너무 많이 몰려 있고, 테스트가 어렵습니다.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🛠 제안하는 개선 방향
+      placeholder: |
+        - [ ] 서비스 로직 분리
+        - [ ] 유닛 테스트 가능하도록 구조 변경
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ⚠️ 고려사항
+      description: 리팩토링 시 주의해야 할 점이 있다면 작성해주세요.
+      placeholder: |
+        - [ ] 기존 API 응답 형식 유지
+        - [ ] 의존 모듈 영향 범위 확인
+    validations:
+      required: false
+
+  - type: input
+    attributes:
+      label: ⏱ 예상 소요 시간
+      placeholder: ex) 2시간, 반나절
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 🙋🏻 덧붙일 말
+      description: 팀원에게 전하고 싶은 말이 있다면 자유롭게 작성해주세요.

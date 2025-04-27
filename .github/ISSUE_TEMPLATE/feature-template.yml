@@ -1,0 +1,63 @@
+name: "✨ 새로운 기능 제안"
+description: "새로운 기능을 제안하고 상세한 구현 계획을 공유해주세요!"
+title: "[✨ Feature] "
+labels: "✨ Feature"
+body:
+  - type: input
+    attributes:
+      label: 📌 기능 이름
+      placeholder: ex) '소셜 로그인 기능'
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 📖 기능 설명
+      description: 어떤 기능인지 또는 왜 필요한지 설명해 주세요.
+      placeholder: |
+        ex) 현재는 자체 로그인만 지원되며, 소셜 로그인 요청이 많아 해당 기능을 추가하고자 합니다.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ✅ 구현 항목
+      placeholder: |
+        - [ ] 소셜 로그인 버튼 추가 (프론트)
+        - [ ] OAuth 인증 흐름 처리 (백엔드)
+        - [ ] 기존 회원과 연동 처리
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ⚠️ 개발 시 유의사항
+      placeholder: |
+        - [ ] 중복 로그인 방지
+        - [ ] 이미 가입된 이메일 연동 처리
+    validations:
+      required: false
+
+  - type: dropdown
+    attributes:
+      label: 🧭 관련 도메인
+      options:
+        - 사용자(User)
+        - 인증(Auth)
+        - 게시글(Post)
+        - 관리자(Admin)
+      description: 이 기능이 속한 범주를 선택해 주세요.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: 🕰 예상 소요 시간
+      placeholder: ex) 4시간, 반나절, 하루
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 🙋🏻 덧붙일 말
+      description: 팀원에게 전하고 싶은 말이 있다면 자유롭게 적어주세요.

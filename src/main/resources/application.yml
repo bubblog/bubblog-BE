@@ -3,6 +3,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/bubblog
     username: postgres #${DB_USER}
     password: 1234 #${DB_PASS}
+    username: ${DB_USER}
+    password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
 
 jpa:

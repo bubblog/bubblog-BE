@@ -1,18 +1,17 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/bubblog
+    url: jdbc:postgresql://localhost:5432/bubblog
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
 
-  jpa:
+jpa:
+  hibernate:
+    ddl-auto: update
+  show-sql: true
+  properties:
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+      format_sql: true
 
 server:
   port: 8080
-

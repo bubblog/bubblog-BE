@@ -5,7 +5,7 @@ import Bubble.bubblog.domain.user.dto.SignupRequestDTO;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.service.UserService;
 import Bubble.bubblog.global.service.TokenService;
-import Bubble.bubblog.global.util.JwtUtil;
+import Bubble.bubblog.global.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

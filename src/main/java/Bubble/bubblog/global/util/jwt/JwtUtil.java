@@ -1,4 +1,4 @@
-package Bubble.bubblog.global.util;
+package Bubble.bubblog.global.util.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

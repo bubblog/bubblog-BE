@@ -1,8 +1,7 @@
-package Bubble.bubblog.global.security;
+package Bubble.bubblog.global.util.jwt;
 
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.repository.UserRepository;
-import Bubble.bubblog.global.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

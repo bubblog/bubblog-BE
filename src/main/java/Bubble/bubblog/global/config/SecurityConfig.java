@@ -40,6 +40,9 @@ public class SecurityConfig {
                                         "/forgot-password"
                                 ).permitAll()
                         // 그 외 요청은 인증 필요
+                        .requestMatchers("/auth/**").permitAll()
+                        .anyRequest().authenticated()
+
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

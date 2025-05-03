@@ -46,8 +46,7 @@ public class UserService {
     }
 
     // logout
-    public void logout(String token) {
-        String userId = jwtUtil.extractUserId(token.substring(7)); // Bearer 제거
+    public void logout(String userId) {
         tokenService.deleteRefreshToken(userId);
     }
 

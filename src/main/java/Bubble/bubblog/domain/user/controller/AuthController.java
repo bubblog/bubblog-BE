@@ -9,7 +9,11 @@ import Bubble.bubblog.global.service.TokenService;
 import Bubble.bubblog.global.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,8 +37,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
-        userService.logout(token);
+    public ResponseEntity<?> logout(@AuthenticationPrincipal String userId) {
+        userService.logout(userId);
         return ResponseEntity.ok("로그아웃 완료");
     }
     

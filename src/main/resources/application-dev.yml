@@ -1,0 +1,34 @@
+spring:
+
+  config:
+    import:
+      - optional:file:env/dev.env[.properties]
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bubblog
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+
+  security:
+    user:
+      name: disabled
+      password: disabled
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: ${JWT_ACCESS_EXPIRATION}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION}

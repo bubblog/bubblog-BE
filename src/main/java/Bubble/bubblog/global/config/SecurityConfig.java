@@ -25,8 +25,24 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // 최신 방식
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                                // Swagger 허용
+                                .requestMatchers(
+                                        "/swagger-ui/**",
+                                        "/swagger-resources/**",
+                                        "/v3/api-docs/**",
+                                        "/v3/api-docs.yaml"
+                                ).permitAll()
+                                // 로그인, 회원가입, 비밀번호 재설정 같은 엔드포인트 허용
+                                .requestMatchers(
+                                        "/auth/**",
+                                        "/login",
+                                        "/signup",
+                                        "/forgot-password"
+                                ).permitAll()
+                        // 그 외 요청은 인증 필요
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
+
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

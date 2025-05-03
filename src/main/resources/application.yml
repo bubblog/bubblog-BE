@@ -1,18 +1,6 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/bubblog
-    username: ${DB_USER}
-    password: ${DB_PASS}
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+  profiles:
+    active: dev  # 기본값 (개발용), 배포 시 prod로 override
 
 server:
   port: 8080
-

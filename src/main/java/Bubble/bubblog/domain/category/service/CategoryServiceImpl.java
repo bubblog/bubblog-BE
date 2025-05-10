@@ -1,5 +1,7 @@
 package Bubble.bubblog.domain.category.service;
 
+import Bubble.bubblog.global.exception.CustomException;
+import Bubble.bubblog.global.exception.ErrorCode;
 import Bubble.bubblog.domain.category.dto.res.CategoryDTO;
 import Bubble.bubblog.domain.category.dto.res.CategoryTreeDTO;
 import Bubble.bubblog.domain.category.entity.Category;
@@ -28,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDTO createCategory(String name, Long parentId, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         Category category = Category.of(name, user);
         categoryRepository.save(category);
@@ -54,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void updateCategory(Long categoryId, String newName, Long newParentId, UUID userId) {
         // 검증
         Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
-                .orElseThrow(() -> new IllegalArgumentException(""));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         // 이름 변경
         if (newName != null && !newName.isBlank()) {
@@ -62,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         // 부모 변경
-        if(newParentId != null && newParentId > 0) {
+        if(newParentId != null && newParentId >= 0) {
             if (newParentId == 0) {
                 // 수정하려는 카테고리를 상위카테고리로 가지는 모든 closure 가져오기
                 List<Long> subtreeIds = closureRepository.findDescendantIds(categoryId);
@@ -71,26 +73,25 @@ public class CategoryServiceImpl implements CategoryService {
                 // 즉, 수정하려는 카테고리가 루트인 서브트리는 유지한 채 상위와의 관계를 모두 제거!!!!!!!
                 closureRepository.deleteExternalAncestors(subtreeIds);
 
-                // 자기 자신 관계 확인용 저장
+                // 자기 자신 관계 저장
                 subtreeIds.forEach(id ->
                         closureRepository.save(CategoryClosure.of(id, id, 0))
                 );
             } else {
-
                 // 자신을 부모로 지정 시 순환 발생
                 if (newParentId.equals(categoryId)) {
-                    throw new IllegalArgumentException("자기 자신을 부모로 지정할 수 없습니다.");
+                    throw new CustomException(ErrorCode.CATEGORY_SELF_PARENT);
                 }
 
                 List<Long> subtreeIds = closureRepository.findDescendantIds(categoryId);
                 // 상위 카테고리를 상위로 지정 시 순환 발생
                 if (subtreeIds.contains(newParentId)) {
-                    throw new IllegalArgumentException("하위 카테고리를 부모로 지정할 수 없습니다.");
+                    throw new CustomException(ErrorCode.CATEGORY_CYCLE);
                 }
 
                 // newParentId가 유효한 카테고리인지, 그리고 같은 유저 소유인지 검증
                 if (!categoryRepository.existsByIdAndUserId(newParentId, userId)) {
-                    throw new IllegalArgumentException("ParentId 오류");
+                    throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);
                 }
 
                 // 카테고리 리스트의 모든 자신이 하위인 관계중 카테고리 아래의 서브트리 제외의 관계를(자신, 자신, 0 제외) 제거
@@ -135,7 +136,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Long categoryId, UUID userId) {
         // 검증
         categoryRepository.findByIdAndUserId(categoryId, userId)
-                .orElseThrow(() -> new IllegalArgumentException(""));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         // 서브트리 ID 조회
         List<Long> subtreeIds = closureRepository.findDescendantIds(categoryId);
@@ -187,7 +188,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryTreeDTO getCategoryWithDescendants(Long categoryId, UUID userId) {
         // 검증
         categoryRepository.findByIdAndUserId(categoryId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         // 해당 카테고리의 모든 하위 카테고리 아이디 조회
         List<Long> descendantIds = closureRepository.findDescendantIds(categoryId);

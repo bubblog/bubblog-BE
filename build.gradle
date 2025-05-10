@@ -28,6 +28,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.hibernate.validator:hibernate-validator'
+	// 유효성
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.glassfish:jakarta.el:4.0.2'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

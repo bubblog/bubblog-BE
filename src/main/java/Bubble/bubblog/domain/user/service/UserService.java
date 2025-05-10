@@ -12,6 +12,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class UserService {
     private final TokenService tokenService;
 
     // signup
+    @Transactional
     public void signup(SignupRequestDTO request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이메일 중복");
@@ -42,11 +46,11 @@ public class UserService {
             throw new BadCredentialsException("비밀번호 틀림");
         }
 
-        return issueTokens(user.getId().toString());
+        return issueTokens(user.getId());
     }
 
     // logout
-    public void logout(String userId) {
+    public void logout(UUID userId) {
         tokenService.deleteRefreshToken(userId);
     }
 
@@ -56,7 +60,7 @@ public class UserService {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰");
         }
 
-        String userId = jwtUtil.extractUserId(refreshToken);
+        UUID userId = jwtUtil.extractUserId(refreshToken);
         String storedToken = tokenService.getRefreshToken(userId);
 
         if (!refreshToken.equals(storedToken)) {
@@ -67,11 +71,11 @@ public class UserService {
     }
 
     // token-issue-logic
-    private TokensDTO issueTokens(String userId) {
+    private TokensDTO issueTokens(UUID userId) {
         String accessToken = jwtUtil.generateAccessToken(userId);
         String refreshToken = jwtUtil.generateRefreshToken(userId);
 
-        tokenService.saveRefreshToken(userId, refreshToken); // ✅ DB 접근 (RefreshToken 저장)
+        tokenService.saveRefreshToken(userId, refreshToken);
 
         return new TokensDTO(accessToken, refreshToken);
     }

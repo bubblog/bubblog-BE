@@ -73,6 +73,7 @@ public class BlogPostServiceImpl implements BlogPostService {
 
     // 특정 사용자의 게시글 목록 조회
     @Transactional(readOnly = true)
+    @Override
     public List<BlogPostSummaryDTO> getPostsByUser(UUID targetUserId, UUID requesterUserId) {
         boolean isOwner = targetUserId.equals(requesterUserId);
         List<BlogPost> posts;
@@ -87,7 +88,6 @@ public class BlogPostServiceImpl implements BlogPostService {
                 .map(BlogPostSummaryDTO::new)
                 .toList();
     }
-
 
     @Transactional
     @Override

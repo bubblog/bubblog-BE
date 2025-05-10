@@ -1,0 +1,12 @@
+package Bubble.bubblog.domain.user.dto;
+
+import lombok.Getter;
+
+@Getter
+public class AccessTokenDTO {
+    private String accessToken;
+
+    public AccessTokenDTO(String accessToken) {
+        this.accessToken = accessToken;
+    }
+}

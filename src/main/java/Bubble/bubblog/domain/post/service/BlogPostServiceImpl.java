@@ -29,9 +29,6 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Transactional
     @Override
     public BlogPostDetailDTO createPost(BlogPostRequestDTO request, UUID userId) {
-        if (request.getTitle() == null || request.getTitle().isBlank()) {
-            throw new CustomException(ErrorCode.INVALID_POST_INPUT);
-        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));

@@ -27,13 +27,13 @@ public class BlogPost {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 100)
     private String title;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", length = 255)
     private String summary;
 
     @Column(name = "is_public", nullable = false, columnDefinition = "boolean default false")

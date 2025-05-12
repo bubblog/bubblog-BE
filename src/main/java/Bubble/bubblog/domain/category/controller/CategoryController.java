@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,7 @@ public class CategoryController {
     })
     @PostMapping
     public SuccessResponse<CategoryDTO> createCategory(
-            @RequestBody CategoryCreateDTO request,
+            @Valid @RequestBody CategoryCreateDTO request,
             @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
     ) {
         CategoryDTO category = categoryService.createCategory(request.getName(), request.getParentId(), userId);
@@ -60,7 +61,7 @@ public class CategoryController {
     public SuccessResponse<Void> updateCategory(
             @PathVariable Long id,
             @Parameter(hidden = true) @AuthenticationPrincipal UUID userId,
-            @RequestBody CategoryUpdateDTO request
+            @Valid @RequestBody CategoryUpdateDTO request
     ) {
         categoryService.updateCategory(id, request.getName(), request.getNewParentId(), userId);
         return SuccessResponse.of();

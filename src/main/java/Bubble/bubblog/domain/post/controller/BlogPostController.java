@@ -4,12 +4,17 @@ import Bubble.bubblog.domain.post.dto.req.BlogPostRequestDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
 import Bubble.bubblog.domain.post.service.BlogPostService;
+import Bubble.bubblog.global.dto.ErrorResponse;
+import Bubble.bubblog.global.dto.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,61 +24,95 @@ import java.util.UUID;
 
 @Tag(name = "Blog Post", description = "블로그 게시글 관련 API")
 @RestController
-@RequestMapping("/api/blogs")
+@RequestMapping(value = "/api/blogs", produces = "application/json")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "JWT")
 public class BlogPostController {
 
     private final BlogPostService blogPostService;
 
-    @Operation(summary = "블로그 포스트 생성")
+    @Operation(summary = "블로그 포스트 생성", description = "사용자가 새 게시글을 작성합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시글 생성 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping
-    public ResponseEntity<BlogPostDetailDTO> createPost(@RequestBody BlogPostRequestDTO request,
-                                           @AuthenticationPrincipal UUID userId) {
-        return ResponseEntity.ok(blogPostService.createPost(request, userId));
+    public SuccessResponse<Void> createPost(@RequestBody BlogPostRequestDTO request,
+                                                         @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
+        blogPostService.createPost(request, userId);
+        return SuccessResponse.of();
     }
 
-    @Operation(summary = "특정 블로그 포스트 조회")
+    @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "403", description = "비공개 게시글 접근",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable Long postId, @AuthenticationPrincipal UUID userId) {  // @PathVariable은 URL 경로에 포함된 값을 컨트롤러 메서드의 파라미터로 바인딩해주는 역할을 함
-        try {
-            return ResponseEntity.ok(blogPostService.getPost(postId, userId));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body("로그인 필요");
-        }
+    public SuccessResponse<BlogPostDetailDTO> getPost(@PathVariable Long postId, @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {  // @PathVariable은 URL 경로에 포함된 값을 컨트롤러 메서드의 파라미터로 바인딩해주는 역할을 함
+        return SuccessResponse.of(blogPostService.getPost(postId, userId));
     }
 
-    @Operation(summary = "모든 블로그 포스트 조회")
+    @Operation(summary = "공개 게시글 전체 조회", description = "전체 공개된 게시글을 리스트 형태로 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+    })
     @GetMapping
-    public ResponseEntity<List<BlogPostSummaryDTO>> getAllPosts() {
-        return ResponseEntity.ok(blogPostService.getAllPosts());
+    public SuccessResponse<List<BlogPostSummaryDTO>> getAllPosts() {
+        return SuccessResponse.of(blogPostService.getAllPosts());
     }
 
-    @Operation(summary = "특정 사용자의 게시글 목록 조회")
+    @Operation(summary = "사용자 게시글 조회", description = "특정 사용자의 게시글을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "403", description = "비공개 게시글 접근",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/users/{userId}")
-    public ResponseEntity<?> getPostsByUser(@PathVariable UUID userId,
-                                                                    @AuthenticationPrincipal UUID requesterId) {
-        try {
-            return ResponseEntity.ok(blogPostService.getPostsByUser(userId, requesterId));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body("로그인 필요");
-        }
+    public SuccessResponse<List<BlogPostSummaryDTO>> getPostsByUser(@PathVariable UUID userId,
+                                                                    @Parameter(hidden = true) @AuthenticationPrincipal UUID requesterId) {
+        return SuccessResponse.of(blogPostService.getPostsByUser(userId, requesterId));
     }
 
-    @Operation(summary = "블로그 포스트 삭제")
+    @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "삭제 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "403", description = "작성자만 삭제 가능",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable Long postId,
-                                           @AuthenticationPrincipal UUID userId) {
+    public SuccessResponse<Void> deletePost(@PathVariable Long postId,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
         blogPostService.deletePost(postId, userId);
-        return ResponseEntity.ok("게시글이 삭제되었습니다.");
+        return SuccessResponse.of();
     }
 
+    @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "403", description = "작성자만 수정 가능",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{postId}")
-    public ResponseEntity<BlogPostDetailDTO> updatePost(@PathVariable Long postId,
-                                                        @RequestBody BlogPostRequestDTO request,
-                                                        @AuthenticationPrincipal UUID userId) {
-        BlogPostDetailDTO updated = blogPostService.updatePost(postId, request, userId);
-        return ResponseEntity.ok(updated);
+    public SuccessResponse<Void> updatePost(@PathVariable Long postId,
+                                            @RequestBody BlogPostRequestDTO request,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
+        blogPostService.updatePost(postId, request, userId);
+        return SuccessResponse.of();
     }
 
 

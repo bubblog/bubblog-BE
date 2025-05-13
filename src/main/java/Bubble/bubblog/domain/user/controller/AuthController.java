@@ -19,6 +19,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import Bubble.bubblog.global.service.TokenService;
+import Bubble.bubblog.global.util.jwt.JwtUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,6 +88,7 @@ public class AuthController {
     public SuccessResponse<Void> logout(@Parameter(hidden = true) @AuthenticationPrincipal UUID userId,
                                     @CookieValue("refreshToken") String refreshToken,
                                     HttpServletResponse response) {
+
         userService.logout(userId); // Redis에서 삭제
 
         // 쿠키 제거 (maxAge=0)

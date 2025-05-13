@@ -1,6 +1,6 @@
 package Bubble.bubblog.domain.user.entity;
 
-import Bubble.bubblog.domain.user.dto.SignupRequestDTO;
+import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;

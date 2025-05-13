@@ -1,4 +1,4 @@
-package Bubble.bubblog.domain.user.dto;
+package Bubble.bubblog.domain.user.dto.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

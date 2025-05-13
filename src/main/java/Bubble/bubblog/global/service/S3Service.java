@@ -27,10 +27,6 @@ public class S3Service {
     private long presignedExpiration;
 
     public PresignedUrlDTO generatePresignedUrl(String fileName, String contentType) {
-        if (fileName == null || fileName.isBlank() || contentType == null || contentType.isBlank()) {
-            throw new CustomException(ErrorCode.INVALID_INPUT);
-        }
-
         try {
             String objectKey = "images/" + UUID.randomUUID() + "_" + fileName;
 

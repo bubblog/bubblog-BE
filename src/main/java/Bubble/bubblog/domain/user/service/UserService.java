@@ -1,8 +1,8 @@
 package Bubble.bubblog.domain.user.service;
 
-import Bubble.bubblog.domain.user.dto.LoginRequestDTO;
-import Bubble.bubblog.domain.user.dto.SignupRequestDTO;
-import Bubble.bubblog.domain.user.dto.TokensDTO;
+import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
+import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
+import Bubble.bubblog.domain.user.dto.res.TokensDTO;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.repository.UserRepository;
 import Bubble.bubblog.global.exception.CustomException;

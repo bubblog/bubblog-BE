@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class BlogPostController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
-    public SuccessResponse<Void> createPost(@RequestBody BlogPostRequestDTO request,
+    public SuccessResponse<Void> createPost(@Valid @RequestBody BlogPostRequestDTO request,
                                                          @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
         blogPostService.createPost(request, userId);
         return SuccessResponse.of();
@@ -109,7 +110,7 @@ public class BlogPostController {
     })
     @PutMapping("/{postId}")
     public SuccessResponse<Void> updatePost(@PathVariable Long postId,
-                                            @RequestBody BlogPostRequestDTO request,
+                                            @Valid @RequestBody BlogPostRequestDTO request,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
         blogPostService.updatePost(postId, request, userId);
         return SuccessResponse.of();

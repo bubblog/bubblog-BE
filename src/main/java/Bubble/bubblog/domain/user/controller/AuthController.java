@@ -1,9 +1,9 @@
 package Bubble.bubblog.domain.user.controller;
 
-import Bubble.bubblog.domain.user.dto.AccessTokenDTO;
-import Bubble.bubblog.domain.user.dto.LoginRequestDTO;
-import Bubble.bubblog.domain.user.dto.SignupRequestDTO;
-import Bubble.bubblog.domain.user.dto.TokensDTO;
+import Bubble.bubblog.domain.user.dto.res.AccessTokenDTO;
+import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
+import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
+import Bubble.bubblog.domain.user.dto.res.TokensDTO;
 import Bubble.bubblog.domain.user.service.UserService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -57,7 +58,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/login")
-    public SuccessResponse<AccessTokenDTO> login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
+    public SuccessResponse<AccessTokenDTO> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
         TokensDTO tokens = userService.login(request);
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokens.getRefreshToken())

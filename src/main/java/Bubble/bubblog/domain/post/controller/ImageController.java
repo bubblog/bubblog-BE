@@ -1,5 +1,6 @@
 package Bubble.bubblog.domain.post.controller;
 
+import Bubble.bubblog.domain.post.dto.req.S3UploadRequestDTO;
 import Bubble.bubblog.domain.post.dto.res.PresignedUrlDTO;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,9 +43,9 @@ public class ImageController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/presigned-url")
-    public SuccessResponse<PresignedUrlDTO> getPresignedUrl(@RequestParam String fileName, @RequestParam String contentType,
+    public SuccessResponse<PresignedUrlDTO> getPresignedUrl(@Valid @RequestParam S3UploadRequestDTO request,
                                                             @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
-        return SuccessResponse.of(s3Service.generatePresignedUrl(fileName, contentType));
+        return SuccessResponse.of(s3Service.generatePresignedUrl(request.getFileName(), request.getContentType()));
     }
 }
 

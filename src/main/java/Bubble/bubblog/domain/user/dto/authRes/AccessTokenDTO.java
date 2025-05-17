@@ -1,4 +1,4 @@
-package Bubble.bubblog.domain.user.dto.res;
+package Bubble.bubblog.domain.user.dto.authRes;
 
 import lombok.Getter;
 

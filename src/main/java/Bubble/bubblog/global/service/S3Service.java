@@ -1,6 +1,6 @@
 package Bubble.bubblog.global.service;
 
-import Bubble.bubblog.domain.post.dto.res.PresignedUrlDTO;
+import Bubble.bubblog.global.dto.s3.res.PresignedUrlDTO;
 import Bubble.bubblog.global.exception.CustomException;
 import Bubble.bubblog.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

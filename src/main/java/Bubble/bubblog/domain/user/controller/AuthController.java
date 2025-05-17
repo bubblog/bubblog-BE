@@ -1,10 +1,10 @@
 package Bubble.bubblog.domain.user.controller;
 
-import Bubble.bubblog.domain.user.dto.AuthResponseDTO;
+import Bubble.bubblog.domain.user.dto.authRes.LoginResponseDTO;
 import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
-import Bubble.bubblog.domain.user.dto.res.AccessTokenDTO;
-import Bubble.bubblog.domain.user.dto.res.TokensDTO;
+import Bubble.bubblog.domain.user.dto.authRes.AccessTokenDTO;
+import Bubble.bubblog.domain.user.dto.authRes.TokensDTO;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.service.UserService;
 import Bubble.bubblog.global.dto.ErrorResponse;
@@ -57,7 +57,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/login")
-    public SuccessResponse<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
+    public SuccessResponse<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
         User user = userService.login(request); // User 객체 반환
         TokensDTO tokens = userService.issueTokens(user.getId());
 
@@ -72,7 +72,7 @@ public class AuthController {
         // 쿠키 수동으로 삽입
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-        return SuccessResponse.of(new AuthResponseDTO(tokens.getAccessToken(), user.getId()));
+        return SuccessResponse.of(new LoginResponseDTO(tokens.getAccessToken(), user.getId()));
     }
 
     @Operation(summary = "로그아웃", description = "리프레시 토큰을 쿠키와 Redis에서 삭제하고 로그아웃합니다.")

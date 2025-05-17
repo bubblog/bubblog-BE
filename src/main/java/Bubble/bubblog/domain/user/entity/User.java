@@ -29,28 +29,48 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = 30)
     private String nickname;
+
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    private static User of(String email, String password, String nickname) {
+    // 프로필 이미지 설정하고 user 생성
+    private static User of(String email, String password, String nickname, String profileImageUrl) {
         User user = new User();
         user.email = email;
         user.password = password;
         user.nickname = nickname;
+        user.profileImageUrl = profileImageUrl;
 
         return user;
+    }
+
+    // 프로필 이미지 설정 안하고 user 생성
+    private static User of(String email, String password, String nickname) {
+        return of(email, password, nickname, null);
     }
 
     public static User from(SignupRequestDTO dto, PasswordEncoder passwordEncoder) {
         return User.of(
                 dto.getEmail(),
                 passwordEncoder.encode(dto.getPassword()),
-                dto.getNickname()
+                dto.getNickname(),
+                dto.getProfileImageUrl()
         );
     }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
 
 }

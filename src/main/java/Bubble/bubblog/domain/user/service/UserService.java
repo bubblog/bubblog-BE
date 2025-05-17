@@ -1,8 +1,10 @@
 package Bubble.bubblog.domain.user.service;
 
+import Bubble.bubblog.domain.user.dto.authRes.TokensDTO;
+import Bubble.bubblog.domain.user.dto.infoRes.UserInfoDTO;
 import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
-import Bubble.bubblog.domain.user.dto.res.TokensDTO;
+import Bubble.bubblog.domain.user.dto.req.UserUpdateDTO;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.repository.UserRepository;
 import Bubble.bubblog.global.exception.CustomException;
@@ -32,12 +34,16 @@ public class UserService {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
 
+        if (userRepository.existsByNickname(request.getNickname())) {
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+
         User user = User.from(request, passwordEncoder);
         userRepository.save(user);
     }
 
     // login
-    public TokensDTO login(LoginRequestDTO request) {
+    public User login(LoginRequestDTO request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -45,7 +51,7 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
-        return issueTokens(user.getId());
+        return user;
     }
 
     // logout
@@ -70,7 +76,7 @@ public class UserService {
     }
 
     // token-issue-logic
-    private TokensDTO issueTokens(UUID userId) {
+    public TokensDTO issueTokens(UUID userId) {
         String accessToken = jwtUtil.generateAccessToken(userId);
         String refreshToken = jwtUtil.generateRefreshToken(userId);
 
@@ -78,4 +84,36 @@ public class UserService {
 
         return new TokensDTO(accessToken, refreshToken);
     }
+
+    // user 정보 조회
+    public UserInfoDTO getUserInfo(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return new UserInfoDTO(
+                user.getId(),
+                user.getNickname(),
+                user.getProfileImageUrl()
+        );
+    }
+
+    // user 정보 수정
+    @Transactional
+    public void updateUser(UUID userId, UserUpdateDTO request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 닉네임 수정
+        String newNickname = request.getNickname();
+        if (newNickname != null && !newNickname.equals(user.getNickname())) {
+            if (userRepository.existsByNickname(newNickname)) {
+                throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+            }
+            user.updateNickname(newNickname);
+        }
+
+        // 프로필 이미지 수정 (null이면 이미지 제거)
+        user.updateProfileImageUrl(request.getProfileImageUrl());
+    }
+
 }

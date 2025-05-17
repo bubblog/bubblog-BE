@@ -33,8 +33,8 @@ public class BlogPostServiceImpl implements BlogPostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+        Category category = categoryRepository.findByIdAndUserId(request.getCategoryId(), userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_CATEGORY_ACCESS));
 
         BlogPost blogPost = BlogPost.of(
                 request.getTitle(),
@@ -95,6 +95,7 @@ public class BlogPostServiceImpl implements BlogPostService {
                 .toList();
     }
 
+    // 게시글 삭제
     @Transactional
     @Override
     public void deletePost(Long postId, UUID userId) {
@@ -108,6 +109,7 @@ public class BlogPostServiceImpl implements BlogPostService {
         blogPostRepository.delete(post);
     }
 
+    // 게시글 수정
     @Transactional
     @Override
     public BlogPostDetailDTO updatePost(Long postId, BlogPostRequestDTO request, UUID userId) {
@@ -118,8 +120,8 @@ public class BlogPostServiceImpl implements BlogPostService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_POST_ACCESS);
         }
 
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+        Category category = categoryRepository.findByIdAndUserId(request.getCategoryId(), userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_CATEGORY_ACCESS));
 
         post.update(
                 request.getTitle(),

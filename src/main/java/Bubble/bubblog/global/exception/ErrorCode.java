@@ -15,6 +15,7 @@ public enum ErrorCode {
     // 도메인별 에러
     // 유저
     DUPLICATE_EMAIL(400, "이미 존재하는 이메일입니다."),
+    DUPLICATE_NICKNAME(400, "이미 존재하는 이메일입니다."),
     USER_NOT_FOUND(404, "존재하지 않는 이메일입니다."),
     INVALID_PASSWORD(401, "비밀번호가 틀렸습니다."),
     INVALID_REFRESH_TOKEN(401, "유효하지 않거나 만료된 리프레시 토큰입니다."),
@@ -23,6 +24,7 @@ public enum ErrorCode {
     // 블로그 게시글
     POST_NOT_FOUND(404, "게시글을 찾을 수 없습니다."),
     UNAUTHORIZED_POST_ACCESS(403, "해당 게시글에 대한 권한이 없습니다."),
+    UNAUTHORIZED_CATEGORY_ACCESS(403, "해당 카테고리에 대한 권한이 없습니다."),
 
     // 카테고리
     CATEGORY_NOT_FOUND(404, "카테고리를 찾을 수 없습니다."),

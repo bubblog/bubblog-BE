@@ -1,4 +1,4 @@
-package Bubble.bubblog.domain.post.dto.req;
+package Bubble.bubblog.global.dto.s3.req;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

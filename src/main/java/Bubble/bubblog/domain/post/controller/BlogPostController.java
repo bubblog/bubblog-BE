@@ -38,6 +38,8 @@ public class BlogPostController {
             @ApiResponse(responseCode = "200", description = "게시글 생성 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "카테고리 권한 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
@@ -106,7 +108,7 @@ public class BlogPostController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "403", description = "작성자만 수정 가능",
+            @ApiResponse(responseCode = "403", description = "게시글 혹은 카테고리에 대한 권한 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))

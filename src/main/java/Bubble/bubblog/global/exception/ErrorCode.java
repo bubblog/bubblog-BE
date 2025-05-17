@@ -24,6 +24,7 @@ public enum ErrorCode {
     // 블로그 게시글
     POST_NOT_FOUND(404, "게시글을 찾을 수 없습니다."),
     UNAUTHORIZED_POST_ACCESS(403, "해당 게시글에 대한 권한이 없습니다."),
+    UNAUTHORIZED_CATEGORY_ACCESS(403, "해당 카테고리에 대한 권한이 없습니다."),
 
     // 카테고리
     CATEGORY_NOT_FOUND(404, "카테고리를 찾을 수 없습니다."),

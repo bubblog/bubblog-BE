@@ -1,4 +1,4 @@
-package Bubble.bubblog.domain.post.dto.res;
+package Bubble.bubblog.global.dto.s3.res;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

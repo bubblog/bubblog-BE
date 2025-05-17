@@ -1,7 +1,7 @@
-package Bubble.bubblog.domain.post.controller;
+package Bubble.bubblog.global.controller;
 
-import Bubble.bubblog.domain.post.dto.req.S3UploadRequestDTO;
-import Bubble.bubblog.domain.post.dto.res.PresignedUrlDTO;
+import Bubble.bubblog.global.dto.s3.req.S3UploadRequestDTO;
+import Bubble.bubblog.global.dto.s3.res.PresignedUrlDTO;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
 import Bubble.bubblog.global.service.S3Service;

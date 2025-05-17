@@ -1,9 +1,11 @@
 package Bubble.bubblog.domain.user.controller;
 
-import Bubble.bubblog.domain.user.dto.res.AccessTokenDTO;
+import Bubble.bubblog.domain.user.dto.authRes.LoginResponseDTO;
 import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
-import Bubble.bubblog.domain.user.dto.res.TokensDTO;
+import Bubble.bubblog.domain.user.dto.authRes.AccessTokenDTO;
+import Bubble.bubblog.domain.user.dto.authRes.TokensDTO;
+import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.service.UserService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
@@ -20,9 +22,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import Bubble.bubblog.global.service.TokenService;
-import Bubble.bubblog.global.util.jwt.JwtUtil;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,8 +57,9 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/login")
-    public SuccessResponse<AccessTokenDTO> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
-        TokensDTO tokens = userService.login(request);
+    public SuccessResponse<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
+        User user = userService.login(request); // User 객체 반환
+        TokensDTO tokens = userService.issueTokens(user.getId());
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokens.getRefreshToken())
                 .httpOnly(true)
@@ -72,7 +72,7 @@ public class AuthController {
         // 쿠키 수동으로 삽입
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-        return SuccessResponse.of(new AccessTokenDTO(tokens.getAccessToken()));
+        return SuccessResponse.of(new LoginResponseDTO(tokens.getAccessToken(), user.getId()));
     }
 
     @Operation(summary = "로그아웃", description = "리프레시 토큰을 쿠키와 Redis에서 삭제하고 로그아웃합니다.")

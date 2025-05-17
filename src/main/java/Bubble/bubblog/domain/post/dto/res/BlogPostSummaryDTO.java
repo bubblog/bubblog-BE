@@ -4,6 +4,9 @@ import Bubble.bubblog.domain.post.entity.BlogPost;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Getter
 @AllArgsConstructor
 public class BlogPostSummaryDTO {
@@ -11,25 +14,15 @@ public class BlogPostSummaryDTO {
     private String title;
     private String summary;
     private String thumbnailUrl;
-    // private LocalDateTime createdAt;
-    private AuthorDTO author;
+    private LocalDateTime createdAt;
+    private UUID userId;
 
     public BlogPostSummaryDTO(BlogPost post) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.summary = post.getSummary();
         this.thumbnailUrl = post.getThumbnailUrl();
-        // this.createdAt = post.getCreatedAt();
-        this.author = new AuthorDTO(
-                post.getUser().getNickname()
-                // post.getUser().getProfileImageUrl() // 향후 추가
-        );
-    }
-
-    @Getter
-    @AllArgsConstructor
-    public static class AuthorDTO {
-        private String nickname;
-        // private String profileImageUrl;
+        this.createdAt = post.getCreatedAt();
+        this.userId = post.getUser().getId();
     }
 }

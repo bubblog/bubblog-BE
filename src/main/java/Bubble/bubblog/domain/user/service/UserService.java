@@ -37,7 +37,7 @@ public class UserService {
     }
 
     // login
-    public TokensDTO login(LoginRequestDTO request) {
+    public User login(LoginRequestDTO request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -45,7 +45,7 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
-        return issueTokens(user.getId());
+        return user;
     }
 
     // logout
@@ -70,7 +70,7 @@ public class UserService {
     }
 
     // token-issue-logic
-    private TokensDTO issueTokens(UUID userId) {
+    public TokensDTO issueTokens(UUID userId) {
         String accessToken = jwtUtil.generateAccessToken(userId);
         String refreshToken = jwtUtil.generateRefreshToken(userId);
 

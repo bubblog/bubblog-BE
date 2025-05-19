@@ -3,6 +3,7 @@ package Bubble.bubblog.domain.post.controller;
 import Bubble.bubblog.domain.post.dto.req.BlogPostRequestDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
+import Bubble.bubblog.domain.post.dto.res.UserPostsResponseDTO;
 import Bubble.bubblog.domain.post.service.BlogPostService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
@@ -37,13 +38,16 @@ public class BlogPostController {
             @ApiResponse(responseCode = "200", description = "게시글 생성 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "카테고리 권한 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
-    public SuccessResponse<Void> createPost(@Valid @RequestBody BlogPostRequestDTO request,
+    public SuccessResponse<BlogPostDetailDTO> createPost(@Valid @RequestBody BlogPostRequestDTO request,
                                                          @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
-        blogPostService.createPost(request, userId);
-        return SuccessResponse.of();
+        // 기존에는 게시글 생성 후 ok응답만 했다면 이번 리팩토링 후 게시글 생성 후 게시글 상세 내용 반환,,,
+        BlogPostDetailDTO dto = blogPostService.createPost(request, userId);
+        return SuccessResponse.of(dto);
     }
 
     @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
@@ -78,9 +82,10 @@ public class BlogPostController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/users/{userId}")
-    public SuccessResponse<List<BlogPostSummaryDTO>> getPostsByUser(@PathVariable UUID userId,
+    public SuccessResponse<UserPostsResponseDTO> getPostsByUser(@PathVariable UUID userId,
                                                                     @Parameter(hidden = true) @AuthenticationPrincipal UUID requesterId) {
-        return SuccessResponse.of(blogPostService.getPostsByUser(userId, requesterId));
+        List<BlogPostSummaryDTO> posts = blogPostService.getPostsByUser(userId, requesterId);
+        return SuccessResponse.of(new UserPostsResponseDTO(userId, posts));
     }
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
@@ -103,7 +108,7 @@ public class BlogPostController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "403", description = "작성자만 수정 가능",
+            @ApiResponse(responseCode = "403", description = "게시글 혹은 카테고리에 대한 권한 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))

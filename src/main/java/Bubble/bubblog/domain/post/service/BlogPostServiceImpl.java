@@ -11,6 +11,7 @@ import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.repository.UserRepository;
 import Bubble.bubblog.global.exception.CustomException;
 import Bubble.bubblog.global.exception.ErrorCode;
+import Bubble.bubblog.global.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final BlogPostRepository blogPostRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final AiService aiService;
 
     @Transactional
     @Override
@@ -47,6 +49,10 @@ public class BlogPostServiceImpl implements BlogPostService {
         );
 
         BlogPost post = blogPostRepository.save(blogPost);
+
+        // AI 서버에 임베딩 요청 - 일단 title 제외, content만 전달
+        aiService.handlePostCreatedOrUpdated(post.getId(), post.getContent());
+
         return new BlogPostDetailDTO(post);
     }
 
@@ -107,6 +113,9 @@ public class BlogPostServiceImpl implements BlogPostService {
         }
 
         blogPostRepository.delete(post);
+
+        // AI 서버에 벡터 삭제 요청
+        aiService.handlePostDeleted(postId);
     }
 
     // 게시글 수정
@@ -131,6 +140,9 @@ public class BlogPostServiceImpl implements BlogPostService {
                 request.getThumbnailUrl(),
                 category
         );
+
+        // 🔥 AI 서버에 임베딩 갱신 요청
+        aiService.handlePostCreatedOrUpdated(post.getId(), post.getContent());
 
         return new BlogPostDetailDTO(post);
     }

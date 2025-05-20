@@ -32,6 +32,9 @@ public class CategoryServiceImpl implements CategoryService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
+        categoryRepository.findByIdAndUserId(parentId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
+
         Category category = Category.of(name, user);
         categoryRepository.save(category);
 

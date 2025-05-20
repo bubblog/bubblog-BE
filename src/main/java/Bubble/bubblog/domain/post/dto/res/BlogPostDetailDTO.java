@@ -5,9 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
-@AllArgsConstructor    // 모든 필드 값을 파라미터로 받는 생성자를 생성
+@AllArgsConstructor
 public class BlogPostDetailDTO {
     private Long id;
     private String title;
@@ -17,7 +18,7 @@ public class BlogPostDetailDTO {
     private String thumbnailUrl;
     private LocalDateTime createdAt;
     private Long categoryId;
-    private AuthorDTO author;
+    private UUID userId; // ✅ author 대신 userId만
 
     public BlogPostDetailDTO(BlogPost post) {
         this.id = post.getId();
@@ -28,21 +29,6 @@ public class BlogPostDetailDTO {
         this.thumbnailUrl = post.getThumbnailUrl();
         this.categoryId = post.getCategory().getId();
         this.createdAt = post.getCreatedAt();
-
-        // 작성자
-        this.author = new AuthorDTO(
-                post.getUser().getNickname()
-                // post.getUser().getProfileImageUrl() // 향후 추가
-        );
+        this.userId = post.getUser().getId(); // ✅ 작성자 UUID만 전달
     }
-
-    @Getter
-    @AllArgsConstructor
-    public static class AuthorDTO {
-        private String nickname;
-        // private String profileImageUrl;
-    }
-
-
 }
-

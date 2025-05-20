@@ -29,4 +29,7 @@ public class SignupRequestDTO {
     @NotBlank(message = "닉네임은 필수 입력값입니다.")
     @Size(max = 30, message = "닉네임은 최대 30자까지 가능합니다.")
     private String nickname;
+
+    @Schema(description = "프로필 이미지 URL (선택)", example = "https://bucketName.s3.amazonaws.com/images/@#@#@#_hanhwaeagles.jpg")
+    private String profileImageUrl;
 }

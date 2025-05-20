@@ -48,6 +48,9 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 파싱용
 
 	implementation 'software.amazon.awssdk:s3:2.31.36'
+
+	// WebClient - 외부 서버로 요청을 보내기 위해
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 tasks.named('test') {

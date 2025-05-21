@@ -3,7 +3,7 @@ package Bubble.bubblog.domain.user.controller;
 import Bubble.bubblog.domain.user.dto.authRes.LoginResponseDTO;
 import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
-import Bubble.bubblog.domain.user.dto.authRes.AccessTokenDTO;
+import Bubble.bubblog.domain.user.dto.authRes.ReissueResponseDTO;
 import Bubble.bubblog.domain.user.dto.authRes.TokensDTO;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.service.UserService;
@@ -113,9 +113,10 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "리프레시 토큰이 유효하지 않거나 만료됨",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
+
     @PostMapping("/reissue")
-    public SuccessResponse<AccessTokenDTO> reissue(@CookieValue("refreshToken") String refreshToken,
-                                                  HttpServletResponse response) {       // @RequestBody ReissueRequestDTO request
+    public SuccessResponse<ReissueResponseDTO> reissue(@CookieValue("refreshToken") String refreshToken,
+                                                       HttpServletResponse response) {       // @RequestBody ReissueRequestDTO request
         TokensDTO newtokens = userService.reissueTokens(refreshToken);
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", newtokens.getRefreshToken())
                 .httpOnly(true)
@@ -127,7 +128,7 @@ public class AuthController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-        return SuccessResponse.of(new AccessTokenDTO(newtokens.getAccessToken()));
+        return SuccessResponse.of(new ReissueResponseDTO(newtokens.getAccessToken(), newtokens.getUserId()));
     }
 
 }

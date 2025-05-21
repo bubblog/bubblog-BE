@@ -82,7 +82,7 @@ public class UserService {
 
         tokenService.saveRefreshToken(userId, refreshToken);
 
-        return new TokensDTO(accessToken, refreshToken);
+        return new TokensDTO(accessToken, refreshToken, userId);
     }
 
     // user 정보 조회

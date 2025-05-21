@@ -30,10 +30,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDTO createCategory(String name, Long parentId, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        categoryRepository.findByIdAndUserId(parentId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
+        if( parentId != null && parentId != 0 ){
+            categoryRepository.findByIdAndUserId(parentId, userId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+        }
 
         Category category = Category.of(name, user);
         categoryRepository.save(category);

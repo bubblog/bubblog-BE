@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -50,8 +51,9 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         BlogPost post = blogPostRepository.save(blogPost);
 
-        // AI 서버에 임베딩 요청 - 일단 title 제외, content만 전달
-        aiService.handlePostCreatedOrUpdated(post.getId(), post.getContent());
+        // AI 서버에 임베딩 요청
+        aiService.handlePostTitle(post.getId(), post.getTitle());
+        aiService.handlePostContent(post.getId(), post.getContent());
 
         return new BlogPostDetailDTO(post);
     }
@@ -114,8 +116,6 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         blogPostRepository.delete(post);
 
-        // AI 서버에 벡터 삭제 요청
-        aiService.handlePostDeleted(postId);
     }
 
     // 게시글 수정
@@ -132,6 +132,22 @@ public class BlogPostServiceImpl implements BlogPostService {
         Category category = categoryRepository.findByIdAndUserId(request.getCategoryId(), userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_CATEGORY_ACCESS));
 
+        // 변경 전 값 저장
+        String oldTitle   = post.getTitle();
+        String oldContent = post.getContent();
+
+        // 변경 여부 판단
+        boolean titleChanged   = !Objects.equals(oldTitle, request.getTitle());
+        boolean contentChanged = !Objects.equals(oldContent, request.getContent());
+
+        // 분기 처리
+        if (titleChanged) {
+            aiService.handlePostTitle(post.getId(), post.getTitle());
+        }
+        if (contentChanged) {
+            aiService.handlePostContent(post.getId(), post.getContent());
+        }
+
         post.update(
                 request.getTitle(),
                 request.getContent(),
@@ -141,10 +157,6 @@ public class BlogPostServiceImpl implements BlogPostService {
                 category
         );
 
-        // 🔥 AI 서버에 임베딩 갱신 요청
-        aiService.handlePostCreatedOrUpdated(post.getId(), post.getContent());
-
         return new BlogPostDetailDTO(post);
     }
-
 }

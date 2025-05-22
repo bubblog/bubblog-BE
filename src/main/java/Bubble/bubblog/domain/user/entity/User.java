@@ -1,5 +1,7 @@
 package Bubble.bubblog.domain.user.entity;
 
+import Bubble.bubblog.domain.category.entity.Category;
+import Bubble.bubblog.domain.post.entity.BlogPost;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,6 +10,8 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -38,6 +42,12 @@ public class User {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<BlogPost> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Category> categories = new ArrayList<>();
 
     // 프로필 이미지 설정하고 user 생성
     private static User of(String email, String password, String nickname, String profileImageUrl) {

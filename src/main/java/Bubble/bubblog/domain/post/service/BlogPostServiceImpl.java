@@ -13,6 +13,8 @@ import Bubble.bubblog.global.exception.CustomException;
 import Bubble.bubblog.global.exception.ErrorCode;
 import Bubble.bubblog.global.service.AiService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,10 +78,9 @@ public class BlogPostServiceImpl implements BlogPostService {
     // 모든 게시글 보기
     @Transactional(readOnly = true)
     @Override
-    public List<BlogPostSummaryDTO> getAllPosts() {
-        return blogPostRepository.findAllByPublicVisibleTrue().stream()
-                .map(BlogPostSummaryDTO::new)
-                .toList();
+    public Page<BlogPostSummaryDTO> getAllPosts(Pageable pageable) {
+        return blogPostRepository.findAllByPublicVisibleTrue(pageable)
+                .map(BlogPostSummaryDTO::new);
     }
 
     // 특정 사용자의 게시글 목록 조회

@@ -17,6 +17,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,14 +69,17 @@ public class BlogPostController {
         return SuccessResponse.of(blogPostService.getPost(postId, userId));
     }
 
-    @Operation(summary = "공개 게시글 전체 조회", description = "전체 공개된 게시글을 리스트 형태로 조회합니다.")
+    @Operation(summary = "공개 게시글 전체 조회", description = "전체 공개된 게시글을 페이지 단워로 조회합니다. 기본값: page=0, size=4, sort=createdAt(DESC)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
     })
     @GetMapping
-    public SuccessResponse<List<BlogPostSummaryDTO>> getAllPosts() {
-        return SuccessResponse.of(blogPostService.getAllPosts());
+    public SuccessResponse<Page<BlogPostSummaryDTO>> getAllPosts(
+            @ParameterObject    // swagger 명시
+            @PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return SuccessResponse.of(blogPostService.getAllPosts(pageable));
     }
 
     @Operation(summary = "사용자 게시글 조회", description = "특정 사용자의 게시글을 조회합니다.")

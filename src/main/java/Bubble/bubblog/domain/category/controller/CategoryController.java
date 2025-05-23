@@ -100,25 +100,25 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
     })
-    @GetMapping("/tree")
+    @GetMapping("/{userId}/tree")
     public SuccessResponse<List<CategoryTreeDTO>> getAllCategoriesAsTree(
-            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
+            @PathVariable UUID userId
     ) {
         return SuccessResponse.of(categoryService.getAllCategoriesAsTree(userId));
     }
 
-    @Operation(summary = "특정 카테고리 하위 트리 조회", description = "특정 카테고리의 하위 트리 구조를 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "404", description = "대상을 찾을 수 없습니다.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GetMapping("/{id}/tree")
-    public SuccessResponse<CategoryTreeDTO> getCategoryWithDescendants(
-            @PathVariable Long id,
-            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
-    ) {
-        return SuccessResponse.of(categoryService.getCategoryWithDescendants(id, userId));
-    }
+//    @Operation(summary = "특정 카테고리 하위 트리 조회", description = "특정 카테고리의 하위 트리 구조를 조회합니다.")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "조회 성공",
+//                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+//            @ApiResponse(responseCode = "404", description = "대상을 찾을 수 없습니다.",
+//                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+//    })
+//    @GetMapping("/{id}/tree")
+//    public SuccessResponse<CategoryTreeDTO> getCategoryWithDescendants(
+//            @PathVariable Long id,
+//            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
+//    ) {
+//        return SuccessResponse.of(categoryService.getCategoryWithDescendants(id, userId));
+//    }
 }

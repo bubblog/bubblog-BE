@@ -18,5 +18,5 @@ public interface CategoryService {
 
     List<CategoryTreeDTO> getAllCategoriesAsTree(UUID userId);
 
-    CategoryTreeDTO getCategoryWithDescendants(Long categoryId, UUID userId);
+    // CategoryTreeDTO getCategoryWithDescendants(Long categoryId, UUID userId);
 }

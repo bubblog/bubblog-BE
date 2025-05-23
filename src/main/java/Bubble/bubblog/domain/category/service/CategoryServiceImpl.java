@@ -188,28 +188,28 @@ public class CategoryServiceImpl implements CategoryService {
         return dtoMap.values().stream().filter(CategoryTreeDTO::isRoot).toList();
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public CategoryTreeDTO getCategoryWithDescendants(Long categoryId, UUID userId) {
-        // 검증
-        categoryRepository.findByIdAndUserId(categoryId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
-
-        // 해당 카테고리의 모든 하위 카테고리 아이디 조회
-        List<Long> descendantIds = closureRepository.findDescendantIds(categoryId);
-        // 카테고리와 하위 카테고리와의 모든 관계 즉, 서브 트리 리스트로 조회
-        List<Category> categories = categoryRepository.findByIdInAndUserId(descendantIds, userId);
-        Map<Long, CategoryTreeDTO> dtoMap = new HashMap<>();
-        // 트리 구조로 생성
-        categories.forEach(category -> dtoMap.put(category.getId(), new CategoryTreeDTO(category.getId(), category.getName())));
-        CategoryTreeDTO root = dtoMap.get(categoryId);
-        // 최상단 루트 등록
-        root.setAsRoot();
-        // 부모-자식 등록
-        categories.forEach(category ->
-                closureRepository.findDirectParentId(category.getId())
-                        .ifPresent(parentId -> dtoMap.get(parentId).addChild(dtoMap.get(category.getId())))
-        );
-        return root;
-    }
+//    @Transactional(readOnly = true)
+//    @Override
+//    public CategoryTreeDTO getCategoryWithDescendants(Long categoryId, UUID userId) {
+//        // 검증
+//        categoryRepository.findByIdAndUserId(categoryId, userId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+//
+//        // 해당 카테고리의 모든 하위 카테고리 아이디 조회
+//        List<Long> descendantIds = closureRepository.findDescendantIds(categoryId);
+//        // 카테고리와 하위 카테고리와의 모든 관계 즉, 서브 트리 리스트로 조회
+//        List<Category> categories = categoryRepository.findByIdInAndUserId(descendantIds, userId);
+//        Map<Long, CategoryTreeDTO> dtoMap = new HashMap<>();
+//        // 트리 구조로 생성
+//        categories.forEach(category -> dtoMap.put(category.getId(), new CategoryTreeDTO(category.getId(), category.getName())));
+//        CategoryTreeDTO root = dtoMap.get(categoryId);
+//        // 최상단 루트 등록
+//        root.setAsRoot();
+//        // 부모-자식 등록
+//        categories.forEach(category ->
+//                closureRepository.findDirectParentId(category.getId())
+//                        .ifPresent(parentId -> dtoMap.get(parentId).addChild(dtoMap.get(category.getId())))
+//        );
+//        return root;
+//    }
 }

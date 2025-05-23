@@ -142,10 +142,10 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         // 분기 처리
         if (titleChanged) {
-            aiService.handlePostTitle(post.getId(), post.getTitle());
+            aiService.handlePostTitle(post.getId(), request.getTitle());
         }
         if (contentChanged) {
-            aiService.handlePostContent(post.getId(), post.getContent());
+            aiService.handlePostContent(post.getId(), request.getContent());
         }
 
         post.update(

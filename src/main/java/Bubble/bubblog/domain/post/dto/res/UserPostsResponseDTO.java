@@ -10,5 +10,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserPostsResponseDTO {
     private UUID userId;
+    private String nickname;
     private List<BlogPostSummaryDTO> posts;
 }

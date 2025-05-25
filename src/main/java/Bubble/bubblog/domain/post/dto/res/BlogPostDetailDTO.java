@@ -18,7 +18,8 @@ public class BlogPostDetailDTO {
     private String thumbnailUrl;
     private LocalDateTime createdAt;
     private Long categoryId;
-    private UUID userId; // ✅ author 대신 userId만
+    private UUID userId;
+    private String nickname;
 
     public BlogPostDetailDTO(BlogPost post) {
         this.id = post.getId();
@@ -29,6 +30,7 @@ public class BlogPostDetailDTO {
         this.thumbnailUrl = post.getThumbnailUrl();
         this.categoryId = post.getCategory().getId();
         this.createdAt = post.getCreatedAt();
-        this.userId = post.getUser().getId(); // ✅ 작성자 UUID만 전달
+        this.userId = post.getUser().getId();
+        this.nickname = post.getUser().getNickname();
     }
 }

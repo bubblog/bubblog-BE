@@ -25,7 +25,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 
@@ -92,8 +91,8 @@ public class BlogPostController {
     @GetMapping("/users/{userId}")
     public SuccessResponse<UserPostsResponseDTO> getPostsByUser(@PathVariable UUID userId,
                                                                     @Parameter(hidden = true) @AuthenticationPrincipal UUID requesterId) {
-        List<BlogPostSummaryDTO> posts = blogPostService.getPostsByUser(userId, requesterId);
-        return SuccessResponse.of(new UserPostsResponseDTO(userId, posts));
+        UserPostsResponseDTO responseDTO  = blogPostService.getPostsByUser(userId, requesterId);
+        return SuccessResponse.of(responseDTO);
     }
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")

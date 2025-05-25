@@ -5,6 +5,7 @@ import Bubble.bubblog.domain.category.repository.CategoryRepository;
 import Bubble.bubblog.domain.post.dto.req.BlogPostRequestDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
+import Bubble.bubblog.domain.post.dto.res.UserPostsResponseDTO;
 import Bubble.bubblog.domain.post.entity.BlogPost;
 import Bubble.bubblog.domain.post.repository.BlogPostRepository;
 import Bubble.bubblog.domain.user.entity.User;
@@ -60,6 +61,7 @@ public class BlogPostServiceImpl implements BlogPostService {
         return new BlogPostDetailDTO(post);
     }
 
+    // 게시글 상세 조회
     @Transactional(readOnly = true)
     @Override
     public BlogPostDetailDTO getPost(Long postId, UUID userId) {
@@ -86,8 +88,8 @@ public class BlogPostServiceImpl implements BlogPostService {
     // 특정 사용자의 게시글 목록 조회
     @Transactional(readOnly = true)
     @Override
-    public List<BlogPostSummaryDTO> getPostsByUser(UUID targetUserId, UUID requesterUserId) {
-        userRepository.findById(targetUserId)
+    public UserPostsResponseDTO getPostsByUser(UUID targetUserId, UUID requesterUserId) {
+        User user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         boolean isOwner = targetUserId.equals(requesterUserId);
@@ -99,9 +101,11 @@ public class BlogPostServiceImpl implements BlogPostService {
             posts = blogPostRepository.findAllByUserIdAndPublicVisibleTrue(targetUserId);
         }
 
-        return posts.stream()
+        List<BlogPostSummaryDTO> summaries = posts.stream()
                 .map(BlogPostSummaryDTO::new)
                 .toList();
+
+        return new UserPostsResponseDTO(user.getId(), user.getNickname(), summaries);
     }
 
     // 게시글 삭제

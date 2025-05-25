@@ -84,7 +84,6 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "유효하지 않은 로그아웃 요청입니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @SecurityRequirement(name = "JWT")
     @PostMapping("/logout")
     public SuccessResponse<Void> logout(@Parameter(hidden = true) @AuthenticationPrincipal UUID userId,
                                     @CookieValue("refreshToken") String refreshToken,

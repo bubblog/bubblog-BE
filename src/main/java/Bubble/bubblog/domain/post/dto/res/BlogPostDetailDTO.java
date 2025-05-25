@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -20,8 +21,9 @@ public class BlogPostDetailDTO {
     private Long categoryId;
     private UUID userId;
     private String nickname;
+    private List<String> categoryList;
 
-    public BlogPostDetailDTO(BlogPost post) {
+    public BlogPostDetailDTO(BlogPost post, List<String> categoryList) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
@@ -32,5 +34,6 @@ public class BlogPostDetailDTO {
         this.createdAt = post.getCreatedAt();
         this.userId = post.getUser().getId();
         this.nickname = post.getUser().getNickname();
+        this.categoryList = categoryList;
     }
 }

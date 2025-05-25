@@ -76,7 +76,7 @@ public class BlogPostController {
     @GetMapping
     public SuccessResponse<Page<BlogPostSummaryDTO>> getAllPosts(
             @ParameterObject    // swagger 명시
-            @PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return SuccessResponse.of(blogPostService.getAllPosts(pageable));
     }

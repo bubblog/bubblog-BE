@@ -1,6 +1,7 @@
 package Bubble.bubblog.domain.post.service;
 
 import Bubble.bubblog.domain.category.entity.Category;
+import Bubble.bubblog.domain.category.repository.CategoryClosureRepository;
 import Bubble.bubblog.domain.category.repository.CategoryRepository;
 import Bubble.bubblog.domain.post.dto.req.BlogPostRequestDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
@@ -30,6 +31,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final BlogPostRepository blogPostRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final CategoryClosureRepository categoryClosureRepository;
     private final AiService aiService;
 
     @Transactional
@@ -41,6 +43,8 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         Category category = categoryRepository.findByIdAndUserId(request.getCategoryId(), userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_CATEGORY_ACCESS));
+
+        List<String> categoryList = categoryClosureRepository.findAncestorNamesByDescendantId(category.getId());
 
         BlogPost blogPost = BlogPost.of(
                 request.getTitle(),
@@ -58,7 +62,7 @@ public class BlogPostServiceImpl implements BlogPostService {
         aiService.handlePostTitle(post.getId(), post.getTitle());
         aiService.handlePostContent(post.getId(), post.getContent());
 
-        return new BlogPostDetailDTO(post);
+        return new BlogPostDetailDTO(post, categoryList);
     }
 
     // 게시글 상세 조회
@@ -74,7 +78,9 @@ public class BlogPostServiceImpl implements BlogPostService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_POST_ACCESS);
         }
 
-        return new BlogPostDetailDTO(post);
+        List<String> categoryList = categoryClosureRepository.findAncestorNamesByDescendantId(post.getCategory().getId());
+
+        return new BlogPostDetailDTO(post, categoryList);
     }
 
     // 모든 게시글 보기
@@ -137,6 +143,8 @@ public class BlogPostServiceImpl implements BlogPostService {
         Category category = categoryRepository.findByIdAndUserId(request.getCategoryId(), userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_CATEGORY_ACCESS));
 
+        List<String> categoryList = categoryClosureRepository.findAncestorNamesByDescendantId(category.getId());
+
         // 변경 전 값 저장
         String oldTitle   = post.getTitle();
         String oldContent = post.getContent();
@@ -162,6 +170,6 @@ public class BlogPostServiceImpl implements BlogPostService {
                 category
         );
 
-        return new BlogPostDetailDTO(post);
+        return new BlogPostDetailDTO(post, categoryList);
     }
 }

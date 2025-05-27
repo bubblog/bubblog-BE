@@ -41,4 +41,13 @@ public interface CategoryClosureRepository extends JpaRepository<CategoryClosure
     @Query("SELECT c FROM CategoryClosure c WHERE c.ancestorId = :ancestorId AND c.descendantId IN :subtreeIds")
     List<CategoryClosure> findDepthsByAncestorAndDescendants(Long ancestorId, List<Long> subtreeIds);
 
+    // 하위 카테고리 아이디로 상위 카테고리를 순서대로 리스트로 반환
+    @Query("""
+        SELECT c.name
+          FROM CategoryClosure cc
+          JOIN Category c ON c.id = cc.ancestorId
+         WHERE cc.descendantId = :descendantId
+         ORDER BY cc.depth DESC
+    """)
+    List<String> findAncestorNamesByDescendantId(Long descendantId);
 }

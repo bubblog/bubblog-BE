@@ -5,7 +5,7 @@ spring:
       - optional:file:env/dev.env[.properties]
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/bubblog
+    url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver

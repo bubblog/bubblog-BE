@@ -1,9 +1,4 @@
 spring:
-
-  config:
-    import:
-      - optional:file:env/dev.env[.properties]
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USER}

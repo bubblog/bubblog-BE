@@ -42,7 +42,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/app
+            cd bubblog
 
             # 이전 컨테이너와 이미지 정리
             docker compose down || true

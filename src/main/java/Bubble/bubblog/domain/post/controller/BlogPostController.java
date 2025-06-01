@@ -89,9 +89,19 @@ public class BlogPostController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/users/{userId}")
-    public SuccessResponse<UserPostsResponseDTO> getPostsByUser(@PathVariable UUID userId,
-                                                                    @Parameter(hidden = true) @AuthenticationPrincipal UUID requesterId) {
-        UserPostsResponseDTO responseDTO  = blogPostService.getPostsByUser(userId, requesterId);
+    public SuccessResponse<UserPostsResponseDTO> getPostsByUser(
+            @PathVariable UUID userId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UUID requesterId,
+            @RequestParam(required = false) Long categoryId,
+            @ParameterObject
+            @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        UserPostsResponseDTO responseDTO = blogPostService.getPostsByUser(
+                userId,
+                requesterId,
+                categoryId,
+                pageable
+        );
         return SuccessResponse.of(responseDTO);
     }
 

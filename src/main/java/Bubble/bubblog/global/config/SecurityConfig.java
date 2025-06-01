@@ -31,10 +31,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 // Swagger 허용
                                 .requestMatchers(
-                                        "/swagger-ui/**",
-                                        "/swagger-resources/**",
-                                        "/v3/api-docs/**",
-                                        "/v3/api-docs.yaml"
+                                        "/api/swagger-ui/**",
+                                        "/api/swagger-resources/**",
+                                        "/api/v3/api-docs/**",
+                                        "/api/v3/api-docs.yaml"
                                 ).permitAll()
                                 // 로그인, 회원가입, 비밀번호 재설정 같은 엔드포인트 허용
                                 .requestMatchers(

@@ -94,17 +94,27 @@ public class BlogPostServiceImpl implements BlogPostService {
     // 특정 사용자의 게시글 목록 조회
     @Transactional(readOnly = true)
     @Override
-    public UserPostsResponseDTO getPostsByUser(UUID targetUserId, UUID requesterUserId) {
+    public UserPostsResponseDTO getPostsByUser(UUID targetUserId, UUID requesterUserId,Long categoryId, Pageable pageable) {
         User user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         boolean isOwner = targetUserId.equals(requesterUserId);
-        List<BlogPost> posts;
+        Page<BlogPost> posts;
 
-        if (isOwner) {
-            posts = blogPostRepository.findAllByUserId(targetUserId);
-        } else {
-            posts = blogPostRepository.findAllByUserIdAndPublicVisibleTrue(targetUserId);
+        if (categoryId == null) {
+            if (isOwner) {
+                posts = blogPostRepository.findAllByUserId(targetUserId, pageable);
+            } else {
+                posts = blogPostRepository.findAllByUserIdAndPublicVisibleTrue(targetUserId, pageable);
+            }
+        }
+        else {
+            List<Long> categoryIds = categoryClosureRepository.findAllSubtreeIdsIncludingSelf(categoryId);
+            if (isOwner) {
+                posts = blogPostRepository.findAllByUserIdAndCategory(targetUserId, categoryIds, pageable);
+            } else {
+                posts = blogPostRepository.findAllByUserIdAndCategoryIdInAndPublicVisibleTrue(targetUserId, categoryIds, pageable);
+            }
         }
 
         List<BlogPostSummaryDTO> summaries = posts.stream()

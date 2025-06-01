@@ -13,7 +13,7 @@ public interface BlogPostService {
     BlogPostDetailDTO createPost(BlogPostRequestDTO request, UUID userId);
     BlogPostDetailDTO getPost(Long postId, UUID userId);
     Page<BlogPostSummaryDTO> getAllPosts(Pageable pageable);
-    UserPostsResponseDTO getPostsByUser(UUID targetUserId, UUID requesterUserId);
+    UserPostsResponseDTO getPostsByUser(UUID targetUserId, UUID requesterUserId, Long categoryId, Pageable pageable);
     void deletePost(Long postId, UUID userId);
     BlogPostDetailDTO updatePost(Long postId, BlogPostRequestDTO request, UUID userId);
 }

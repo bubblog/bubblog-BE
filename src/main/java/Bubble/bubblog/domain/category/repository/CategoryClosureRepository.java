@@ -50,4 +50,11 @@ public interface CategoryClosureRepository extends JpaRepository<CategoryClosure
          ORDER BY cc.depth DESC
     """)
     List<String> findAncestorNamesByDescendantId(Long descendantId);
+
+    //자기 자신과 모든 하위 카테고리의 ID를 중복 없이 한 번에 조회한다.
+    @Query("SELECT DISTINCT cc.descendantId " +
+            "FROM CategoryClosure cc " +
+            "WHERE cc.ancestorId = :ancestorId")
+    List<Long> findAllSubtreeIdsIncludingSelf(Long ancestorId);
+
 }

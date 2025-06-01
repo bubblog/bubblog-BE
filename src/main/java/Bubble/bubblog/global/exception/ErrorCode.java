@@ -29,7 +29,11 @@ public enum ErrorCode {
     // 카테고리
     CATEGORY_NOT_FOUND(404, "카테고리를 찾을 수 없습니다."),
     CATEGORY_CYCLE(400, "순환 참조가 발생했습니다."),
-    CATEGORY_SELF_PARENT(400, "자기 자신을 부모로 지정할 수 없습니다.");
+    CATEGORY_SELF_PARENT(400, "자기 자신을 부모로 지정할 수 없습니다."),
+
+    //
+    PERSONA_NOT_FOUND(404, "말투를 찾을 수 없습니다."),
+    UNAUTHORIZED_PERSONA_ACCESS(403, "해당 말투에 대한 권한이 없습니다.");
 
     // S3
 

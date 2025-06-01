@@ -30,7 +30,7 @@ public class AiService {
             throw new RuntimeException(e);
         }
         webClient.post()
-                .uri("/embeddings/title")   // AI 서버 경로
+                .uri("/ai/embeddings/title")   // AI 서버 경로
                 .bodyValue(request)
                 .retrieve()   // 응답 수신 준비
                 .bodyToMono(Void.class)   // 현재는 응답 본문이 없다고 명시, 나중에 String.class나 DTO.class로 수정 가능
@@ -46,7 +46,7 @@ public class AiService {
             throw new RuntimeException(e);
         }
         webClient.post()
-                .uri("/embeddings/content")   // AI 서버 경로
+                .uri("/ai/embeddings/content")   // AI 서버 경로
                 .bodyValue(request)
                 .retrieve()   // 응답 수신 준비
                 .bodyToMono(Void.class)   // 현재는 응답 본문이 없다고 명시, 나중에 String.class나 DTO.class로 수정 가능

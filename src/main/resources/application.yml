@@ -1,6 +1,15 @@
 spring:
   profiles:
-    active: dev  # 기본값 (개발용), 배포 시 prod로 override
+    active: prod  # 기본값 (개발용), 배포 시 prod로 override
 
 server:
   port: 8080
+  address: 0.0.0.0
+
+
+# 스웨거 설정
+springdoc:
+  api-docs:
+    path: /api/v3/api-docs
+  swagger-ui:
+    path: /api/swagger-ui.html

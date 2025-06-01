@@ -1,5 +1,4 @@
 spring:
-
   config:
     import:
       - optional:file:env/dev.env[.properties]

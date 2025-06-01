@@ -49,6 +49,11 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Category> categories = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Category> persona = new ArrayList<>();
+
+
+
     // 프로필 이미지 설정하고 user 생성
     private static User of(String email, String password, String nickname, String profileImageUrl) {
         User user = new User();

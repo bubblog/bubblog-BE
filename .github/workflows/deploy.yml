@@ -45,9 +45,9 @@ jobs:
             cd ~/app
 
             # 이전 컨테이너와 이미지 정리
-            docker-compose down || true
+            docker compose down || true
             docker system prune -af || true
 
             docker pull mdy3722/bubblog-springboot:latest
 
-            docker-compose up -d
+            docker compose up -d

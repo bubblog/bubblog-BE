@@ -1,10 +1,10 @@
 package Bubble.bubblog.domain.user.controller;
 
 import Bubble.bubblog.domain.user.dto.authRes.LoginResponseDTO;
-import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
-import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
 import Bubble.bubblog.domain.user.dto.authRes.ReissueResponseDTO;
 import Bubble.bubblog.domain.user.dto.authRes.TokensDTO;
+import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
+import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.service.UserService;
 import Bubble.bubblog.global.dto.ErrorResponse;
@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -63,7 +62,7 @@ public class AuthController {
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokens.getRefreshToken())
                 .httpOnly(true)
-                .secure(false) // HTTPS 환경에서는 true
+                .secure(true) // HTTPS 환경에서는 true
                 .path("/")
                 .maxAge(Duration.ofDays(7))
                 .sameSite("Strict")
@@ -94,7 +93,7 @@ public class AuthController {
         // 쿠키 제거 (maxAge=0)
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Strict")
@@ -119,7 +118,7 @@ public class AuthController {
         TokensDTO newtokens = userService.reissueTokens(refreshToken);
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", newtokens.getRefreshToken())
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
                 .sameSite("Strict")

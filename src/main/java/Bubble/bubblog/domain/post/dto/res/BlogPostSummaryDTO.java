@@ -15,6 +15,8 @@ public class BlogPostSummaryDTO {
     private String summary;
     private String thumbnailUrl;
     private LocalDateTime createdAt;
+    private Long viewCount;
+    private Long likeCount;
     private UUID userId;
 
     public BlogPostSummaryDTO(BlogPost post) {
@@ -23,6 +25,8 @@ public class BlogPostSummaryDTO {
         this.summary = post.getSummary();
         this.thumbnailUrl = post.getThumbnailUrl();
         this.createdAt = post.getCreatedAt();
+        this.viewCount = post.getViewCount();
+        this.likeCount = post.getLikeCount();
         this.userId = post.getUser().getId();
     }
 }

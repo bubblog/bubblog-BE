@@ -1,7 +1,9 @@
 package Bubble.bubblog.domain.user.entity;
 
 import Bubble.bubblog.domain.category.entity.Category;
+import Bubble.bubblog.domain.chatbot.entity.Persona;
 import Bubble.bubblog.domain.post.entity.BlogPost;
+import Bubble.bubblog.domain.post.entity.PostLike;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -41,6 +43,8 @@ public class User {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
+
+
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
@@ -50,7 +54,11 @@ public class User {
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<Category> persona = new ArrayList<>();
+    private List<Persona> persona = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<PostLike> likes = new ArrayList<>();
+
 
 
 

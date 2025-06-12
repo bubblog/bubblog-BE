@@ -1,5 +1,7 @@
 package Bubble.bubblog.domain.user.service;
 
+import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
+import Bubble.bubblog.domain.post.repository.PostLikeRepository;
 import Bubble.bubblog.domain.user.dto.authRes.TokensDTO;
 import Bubble.bubblog.domain.user.dto.infoRes.UserInfoDTO;
 import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
@@ -12,6 +14,8 @@ import Bubble.bubblog.global.exception.ErrorCode;
 import Bubble.bubblog.global.service.TokenService;
 import Bubble.bubblog.global.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +27,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PostLikeRepository postLikeRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
@@ -114,6 +119,15 @@ public class UserService {
 
         // 프로필 이미지 수정 (null이면 이미지 제거)
         user.updateProfileImageUrl(request.getProfileImageUrl());
+    }
+
+    // 유저가 좋아요 누른 게시글 조회
+    public Page<BlogPostSummaryDTO> getLikedPosts(UUID userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return postLikeRepository.findLikedPostsByUser(user, pageable)
+                .map(BlogPostSummaryDTO::new);
     }
 
 }

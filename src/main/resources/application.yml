@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod  # 기본값 (개발용), 배포 시 prod로 override
+    active: dev  # 기본값 (개발용), 배포 시 prod로 override
 
 server:
   port: 8080

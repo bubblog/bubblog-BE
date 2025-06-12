@@ -8,7 +8,9 @@ import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
 import Bubble.bubblog.domain.post.dto.res.UserPostsResponseDTO;
 import Bubble.bubblog.domain.post.entity.BlogPost;
+import Bubble.bubblog.domain.post.entity.PostLike;
 import Bubble.bubblog.domain.post.repository.BlogPostRepository;
+import Bubble.bubblog.domain.post.repository.PostLikeRepository;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.repository.UserRepository;
 import Bubble.bubblog.global.exception.CustomException;
@@ -17,11 +19,13 @@ import Bubble.bubblog.global.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,6 +33,7 @@ import java.util.UUID;
 public class BlogPostServiceImpl implements BlogPostService {
 
     private final BlogPostRepository blogPostRepository;
+    private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryClosureRepository categoryClosureRepository;
@@ -86,9 +91,20 @@ public class BlogPostServiceImpl implements BlogPostService {
     // 모든 게시글 보기
     @Transactional(readOnly = true)
     @Override
-    public Page<BlogPostSummaryDTO> getAllPosts(Pageable pageable) {
-        return blogPostRepository.findAllByPublicVisibleTrue(pageable)
-                .map(BlogPostSummaryDTO::new);
+    public Page<BlogPostSummaryDTO> getAllPosts(String keyword, Pageable pageable) {
+        Specification<BlogPost> spec = Specification.where(BlogPostSpecifications.publicVisible());
+
+        if (keyword != null && !keyword.isBlank()) {
+            spec = spec.and(
+                    BlogPostSpecifications.titleContains(keyword)
+                            .or(BlogPostSpecifications.contentContains(keyword))
+                            .or(BlogPostSpecifications.summaryContains(keyword))
+            );
+        }
+
+
+        Page<BlogPost> page = blogPostRepository.findAll(spec, pageable);
+        return page.map(BlogPostSummaryDTO::new);
     }
 
     // 특정 사용자의 게시글 목록 조회
@@ -182,4 +198,37 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         return new BlogPostDetailDTO(post, categoryList);
     }
+
+    // 게시글 좋아요
+    @Transactional
+    @Override
+    public boolean toggleLike(Long postId, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        BlogPost post = blogPostRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        Optional<PostLike> existingLike = postLikeRepository.findByUserAndPost(user, post);
+
+        if (existingLike.isPresent()) {
+            // 좋아요 취소
+            postLikeRepository.delete(existingLike.get());
+            post.decrementLikeCount();
+            return false; // 취소됨
+        } else {
+            // 좋아요 추가
+            postLikeRepository.save(new PostLike(user, post));
+            post.incrementLikeCount();
+            return true; // 좋아요 됨
+        }
+    }
+
+    // 조회수 증가
+    @Transactional
+    public void incrementViewCount(Long postId) {
+        BlogPost post = blogPostRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        post.incrementViewCount();
+    }
+
 }

@@ -33,7 +33,7 @@ dependencies {
 	implementation 'org.glassfish:jakarta.el:4.0.2'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	// runtimeOnly 'com.mysql:mysql-connector-j'
+
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -51,8 +51,24 @@ dependencies {
 
 	// WebClient - 외부 서버로 요청을 보내기 위해
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// QueryDSL
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+	annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// QueryDSL 관련 설정
+sourceSets {
+	main {
+		java {
+			srcDirs += "build/generated/sources/annotationProcessor/java/main"
+		}
+	}
 }

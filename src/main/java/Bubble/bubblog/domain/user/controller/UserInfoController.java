@@ -1,5 +1,6 @@
 package Bubble.bubblog.domain.user.controller;
 
+import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
 import Bubble.bubblog.domain.user.dto.infoRes.UserInfoDTO;
 import Bubble.bubblog.domain.user.dto.req.UserUpdateDTO;
 import Bubble.bubblog.domain.user.service.UserService;
@@ -14,6 +15,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,5 +64,20 @@ public class UserInfoController {
         userService.updateUser(userId, request);
         return SuccessResponse.of();
     }
+
+    // 내가 좋아요 누른 게시글 조회
+    @Operation(summary = "좋아요 누른 게시글 목록 조회", description = "사용자가 좋아요를 누른 게시글 목록을 페이지 단위로 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+    })
+    @GetMapping("/me/likes")
+    public SuccessResponse<Page<BlogPostSummaryDTO>> getLikedPosts(
+            @AuthenticationPrincipal UUID userId,
+            @ParameterObject @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return SuccessResponse.of(userService.getLikedPosts(userId, pageable));
+    }
+
 
 }

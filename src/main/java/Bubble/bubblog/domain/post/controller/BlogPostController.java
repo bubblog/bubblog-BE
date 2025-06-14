@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-
+// 게시글 관련 컨트롤러
 @Tag(name = "Blog Post", description = "블로그 게시글 관련 API")
 @RestController
 @RequestMapping(value = "/api/blogs", produces = "application/json")
@@ -37,6 +37,7 @@ public class BlogPostController {
 
     private final BlogPostService blogPostService;
 
+    // 게시글 생성
     @Operation(summary = "블로그 포스트 생성", description = "사용자가 새 게시글을 작성합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 생성 성공",
@@ -49,11 +50,11 @@ public class BlogPostController {
     @PostMapping
     public SuccessResponse<BlogPostDetailDTO> createPost(@Valid @RequestBody BlogPostRequestDTO request,
                                                          @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
-        // 기존에는 게시글 생성 후 ok응답만 했다면 이번 리팩토링 후 게시글 생성 후 게시글 상세 내용 반환,,,
         BlogPostDetailDTO dto = blogPostService.createPost(request, userId);
         return SuccessResponse.of(dto);
     }
 
+    // 특정 게시글 조회
     @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
@@ -68,20 +69,58 @@ public class BlogPostController {
         return SuccessResponse.of(blogPostService.getPost(postId, userId));
     }
 
-    @Operation(summary = "공개 게시글 전체 조회", description = "전체 공개된 게시글을 페이지 단워로 조회합니다. 기본값: page=0, size=4, sort=createdAt(DESC)")
+    // 전체 게시글 조회
+    @Operation(
+            summary = "공개 게시글 전체 조회",
+            description = """
+            전체 공개된 게시글을 페이지 단위로 조회합니다.
+        
+            - `keyword` : 게시글의 제목, 내용, 요약에 대해 부분 일치 검색을 수행합니다.
+            - `sort` : 정렬 기준을 지정할 수 있습니다.
+                - 예: `sort=likeCount,DESC` (좋아요 많은 순)
+                - 예: `sort=viewCount,DESC` (조회수 많은 순)
+                - 예: `sort=createdAt,DESC` (최신순)
+            - 정렬 기준은 여러 개를 조합할 수 있으며, 우선순위는 파라미터 순서대로 적용됩니다.
+                - 예: `sort=likeCount,DESC&sort=createdAt,DESC` → 좋아요 순 → 최신순
+        
+            [요청 예시]
+            GET /api/posts?keyword=spring&sort=likeCount,DESC&page=0&size=6
+        
+            기본값:
+            - page=0
+            - size=6
+            - sort=createdAt,DESC
+            """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
     })
     @GetMapping
     public SuccessResponse<Page<BlogPostSummaryDTO>> getAllPosts(
-            @ParameterObject    // swagger 명시
+            @RequestParam(required = false) String keyword,
+            @ParameterObject
             @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return SuccessResponse.of(blogPostService.getAllPosts(pageable));
+        Page<BlogPostSummaryDTO> posts = blogPostService.getAllPosts(keyword, pageable);
+        return SuccessResponse.of(posts);
     }
 
-    @Operation(summary = "사용자 게시글 조회", description = "특정 사용자의 게시글을 조회합니다.")
+    // 특정 사용자의 게시글 목록을 조회
+    @Operation(
+            summary = "사용자 게시글 조회",
+            description = """
+            특정 사용자의 게시글을 조회합니다.
+            - `categoryId` : 선택적으로 하위 카테고리를 포함한 특정 카테고리의 게시글만 조회할 수 있습니다.
+            - `sort` : 정렬 기준을 지정할 수 있습니다.
+                - 예: `sort=likeCount,DESC` (좋아요 많은 순)
+                - 예: `sort=viewCount,DESC` (조회수 많은 순)
+                - 예: `sort=createdAt,DESC` (최신순)
+            - 여러 정렬 기준을 조합할 수 있습니다.
+            - 예: `sort=likeCount,DESC&sort=createdAt,DESC` → 좋아요 순 → 같은 경우 최신순
+            기본값: page=0, size=6, sort=createdAt,DESC
+            """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -105,6 +144,7 @@ public class BlogPostController {
         return SuccessResponse.of(responseDTO);
     }
 
+    // 게시글 삭제
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "삭제 성공",
@@ -121,6 +161,7 @@ public class BlogPostController {
         return SuccessResponse.of();
     }
 
+    // 게시글 수정
     @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
@@ -138,5 +179,36 @@ public class BlogPostController {
         return SuccessResponse.of();
     }
 
+    // 좋아요 API
+    @Operation(summary = "게시글 좋아요 토글", description = "특정 게시글에 대해 좋아요 또는 좋아요 취소를 수행합니다. 이미 좋아요를 눌렀다면 취소됩니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "좋아요 처리 성공 (true: 좋아요 추가, false: 좋아요 취소)",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "401", description = "JWT 인증 누락",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "게시글 또는 사용자 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PutMapping("/{postId}/like")
+    public SuccessResponse<Boolean> toggleLike(@PathVariable Long postId,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
+        boolean liked = blogPostService.toggleLike(postId, userId);
+        return SuccessResponse.of(liked);
+    }
+
+    // 조회수 API
+    @Operation(summary = "게시글 조회수 증가", description = "특정 게시글의 조회수를 1 증가시킵니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회수 증가 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PutMapping("/{postId}/view")
+    public SuccessResponse<Void> incrementView(@PathVariable Long postId) {
+        blogPostService.incrementViewCount(postId);
+        return SuccessResponse.of();
+    }
 
 }

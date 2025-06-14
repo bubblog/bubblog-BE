@@ -18,6 +18,8 @@ public class BlogPostDetailDTO {
     private boolean publicVisible;
     private String thumbnailUrl;
     private LocalDateTime createdAt;
+    private Long viewCount;
+    private Long likeCount;
     private Long categoryId;
     private UUID userId;
     private String nickname;
@@ -32,6 +34,8 @@ public class BlogPostDetailDTO {
         this.thumbnailUrl = post.getThumbnailUrl();
         this.categoryId = post.getCategory().getId();
         this.createdAt = post.getCreatedAt();
+        this.viewCount = post.getViewCount();
+        this.likeCount = post.getLikeCount();
         this.userId = post.getUser().getId();
         this.nickname = post.getUser().getNickname();
         this.categoryList = categoryList;

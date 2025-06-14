@@ -8,7 +8,9 @@ import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
 import Bubble.bubblog.domain.post.dto.res.UserPostsResponseDTO;
 import Bubble.bubblog.domain.post.entity.BlogPost;
+import Bubble.bubblog.domain.post.entity.PostLike;
 import Bubble.bubblog.domain.post.repository.BlogPostRepository;
+import Bubble.bubblog.domain.post.repository.PostLikeRepository;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.repository.UserRepository;
 import Bubble.bubblog.global.exception.CustomException;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,6 +32,7 @@ import java.util.UUID;
 public class BlogPostServiceImpl implements BlogPostService {
 
     private final BlogPostRepository blogPostRepository;
+    private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryClosureRepository categoryClosureRepository;
@@ -86,42 +90,39 @@ public class BlogPostServiceImpl implements BlogPostService {
     // 모든 게시글 보기
     @Transactional(readOnly = true)
     @Override
-    public Page<BlogPostSummaryDTO> getAllPosts(Pageable pageable) {
-        return blogPostRepository.findAllByPublicVisibleTrue(pageable)
+    public Page<BlogPostSummaryDTO> getAllPosts(String keyword, Pageable pageable) {
+        return blogPostRepository.searchPosts(keyword, pageable)
                 .map(BlogPostSummaryDTO::new);
     }
+
 
     // 특정 사용자의 게시글 목록 조회
     @Transactional(readOnly = true)
     @Override
-    public UserPostsResponseDTO getPostsByUser(UUID targetUserId, UUID requesterUserId,Long categoryId, Pageable pageable) {
+    public UserPostsResponseDTO getPostsByUser(UUID targetUserId, UUID requesterUserId, Long categoryId, Pageable pageable) {
         User user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         boolean isOwner = targetUserId.equals(requesterUserId);
-        Page<BlogPost> posts;
 
-        if (categoryId == null) {
-            if (isOwner) {
-                posts = blogPostRepository.findAllByUserId(targetUserId, pageable);
-            } else {
-                posts = blogPostRepository.findAllByUserIdAndPublicVisibleTrue(targetUserId, pageable);
+        List<Long> categoryIds;
+        if (categoryId != null) {
+            if (!categoryRepository.existsById(categoryId)) {
+                throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);
             }
-        }
-        else {
-            List<Long> categoryIds = categoryClosureRepository.findAllSubtreeIdsIncludingSelf(categoryId);
-            if (isOwner) {
-                posts = blogPostRepository.findAllByUserIdAndCategory(targetUserId, categoryIds, pageable);
-            } else {
-                posts = blogPostRepository.findAllByUserIdAndCategoryIdInAndPublicVisibleTrue(targetUserId, categoryIds, pageable);
-            }
+            categoryIds = categoryClosureRepository.findAllSubtreeIdsIncludingSelf(categoryId);
+        } else {
+            categoryIds = null;
         }
 
-        List<BlogPostSummaryDTO> summaries = posts.stream()
-                .map(BlogPostSummaryDTO::new)
-                .toList();
+        Page<BlogPost> posts = blogPostRepository
+                .searchUserPosts(targetUserId, isOwner, categoryIds, pageable);
 
-        return new UserPostsResponseDTO(user.getId(), user.getNickname(), summaries);
+        return new UserPostsResponseDTO(
+                user.getId(),
+                user.getNickname(),
+                posts.map(BlogPostSummaryDTO::new).getContent()
+        );
     }
 
     // 게시글 삭제
@@ -182,4 +183,37 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         return new BlogPostDetailDTO(post, categoryList);
     }
+
+    // 게시글 좋아요
+    @Transactional
+    @Override
+    public boolean toggleLike(Long postId, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        BlogPost post = blogPostRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        Optional<PostLike> existingLike = postLikeRepository.findByUserAndPost(user, post);
+
+        if (existingLike.isPresent()) {
+            // 좋아요 취소
+            postLikeRepository.delete(existingLike.get());
+            post.decrementLikeCount();
+            return false; // 취소됨
+        } else {
+            // 좋아요 추가
+            postLikeRepository.save(new PostLike(user, post));
+            post.incrementLikeCount();
+            return true; // 좋아요 됨
+        }
+    }
+
+    // 조회수 증가
+    @Transactional
+    public void incrementViewCount(Long postId) {
+        BlogPost post = blogPostRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        post.incrementViewCount();
+    }
+
 }

@@ -74,11 +74,22 @@ public class BlogPostController {
             summary = "공개 게시글 전체 조회",
             description = """
             전체 공개된 게시글을 페이지 단위로 조회합니다.
-            keyword : 게시글의 제목, 내용, 요약 필드를 기준으로 검색합니다.
-            sort : 파라미터를 통해 정렬 기준을 설정할 수 있습니다.
-            예: `sort=likeCount,DESC` (좋아요 많은 순), `sort=viewCount,DESC` (조회수 많은 순)
-            
-            기본값: page=0, size=6, sort=createdAt,DESC
+        
+            - `keyword` : 게시글의 제목, 내용, 요약에 대해 부분 일치 검색을 수행합니다.
+            - `sort` : 정렬 기준을 지정할 수 있습니다.
+                - 예: `sort=likeCount,DESC` (좋아요 많은 순)
+                - 예: `sort=viewCount,DESC` (조회수 많은 순)
+                - 예: `sort=createdAt,DESC` (최신순)
+            - 정렬 기준은 여러 개를 조합할 수 있으며, 우선순위는 파라미터 순서대로 적용됩니다.
+                - 예: `sort=likeCount,DESC&sort=createdAt,DESC` → 좋아요 순 → 최신순
+        
+            [요청 예시]
+            GET /api/posts?keyword=spring&sort=likeCount,DESC&page=0&size=6
+        
+            기본값:
+            - page=0
+            - size=6
+            - sort=createdAt,DESC
             """
     )
     @ApiResponses({
@@ -100,10 +111,13 @@ public class BlogPostController {
             summary = "사용자 게시글 조회",
             description = """
             특정 사용자의 게시글을 조회합니다.
-            categoryId : 카테고리 별 조회 가능합니다.
-            sort : 파라미터를 통해 정렬 기준을 설정할 수 있습니다.
-            예: `sort=likeCount,DESC` (좋아요 많은 순), `sort=viewCount,DESC` (조회수 많은 순)
-            
+            - `categoryId` : 선택적으로 하위 카테고리를 포함한 특정 카테고리의 게시글만 조회할 수 있습니다.
+            - `sort` : 정렬 기준을 지정할 수 있습니다.
+                - 예: `sort=likeCount,DESC` (좋아요 많은 순)
+                - 예: `sort=viewCount,DESC` (조회수 많은 순)
+                - 예: `sort=createdAt,DESC` (최신순)
+            - 여러 정렬 기준을 조합할 수 있습니다.
+            - 예: `sort=likeCount,DESC&sort=createdAt,DESC` → 좋아요 순 → 같은 경우 최신순
             기본값: page=0, size=6, sort=createdAt,DESC
             """
     )

@@ -34,16 +34,12 @@ public class PersonaServiceImpl implements PersonaService {
         return PersonaResponseDTO.from(persona);
     }
 
-    // 말투 조회
+    // 특정 말투 조회
     @Transactional(readOnly = true)
     @Override
-    public PersonaResponseDTO getPersonaById(Long personaId, UUID userId) {
-        Persona persona = personaRepository.findByIdAndUserId(personaId, userId)
+    public PersonaResponseDTO getPersonaById(Long personaId) {
+        Persona persona = personaRepository.findById(personaId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PERSONA_NOT_FOUND));
-
-        if (!persona.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_PERSONA_ACCESS);
-        }
 
         return PersonaResponseDTO.from(persona);
     }
@@ -51,10 +47,25 @@ public class PersonaServiceImpl implements PersonaService {
     // 말투 전체 조회
     @Transactional(readOnly = true)
     @Override
-    public List<PersonaResponseDTO> getPersonasByUserId(UUID userId) {
-        List<Persona> personas = personaRepository.findAllByUserId(userId);
+    public List<PersonaResponseDTO> getAllPersonas() {
+        List<Persona> personas = personaRepository.findAll();
         return personas.stream().map(PersonaResponseDTO::from).toList();
     }
+
+    // 특정 사용자의 말투 목록 조회
+    @Transactional(readOnly = true)
+    @Override
+    public List<PersonaResponseDTO> getPersonasByUserId(UUID userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<Persona> personas = personaRepository.findAllByUserId(userId);
+
+        return personas.stream()
+                .map(PersonaResponseDTO::from)
+                .toList();
+    }
+
 
     // 말투 수정
     @Transactional

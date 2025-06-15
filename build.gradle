@@ -65,10 +65,6 @@ tasks.named('test') {
 }
 
 // QueryDSL 관련 설정
-sourceSets {
-	main {
-		java {
-			srcDirs += "build/generated/sources/annotationProcessor/java/main"
-		}
-	}
+sourceSets["main"].java {
+	srcDir("build/generated/sources/annotationProcessor/java/main")
 }

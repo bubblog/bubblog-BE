@@ -9,9 +9,9 @@ import java.util.UUID;
 
 public interface PersonaService {
     PersonaResponseDTO createPersona(PersonaRequestDTO dto, UUID userId);
+    List<PersonaResponseDTO> getAllPersonas();
+    PersonaResponseDTO getPersonaById(Long personaId);
     List<PersonaResponseDTO> getPersonasByUserId(UUID userId);
     PersonaResponseDTO updatePersona(Long personaId, @Valid PersonaRequestDTO request, UUID userId);
     void deletePersona(Long personaId, UUID userId);
-
-    PersonaResponseDTO getPersonaById(Long personaId, UUID userId);
 }

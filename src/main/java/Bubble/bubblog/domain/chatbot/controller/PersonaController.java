@@ -46,12 +46,10 @@ public class PersonaController {
         return SuccessResponse.of(p);
     }
 
-    @Operation(summary = "특정 말투 조회", description = "로그인한 사용자가 자신의 특정 말투를 조회합니다.")
+    @Operation(summary = "특정 말투 조회", description = "특정 말투를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "403", description = "접근 권한 없음",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 말투",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -60,11 +58,12 @@ public class PersonaController {
             @PathVariable Long personaId,
             @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
     ) {
-        PersonaResponseDTO dto = personaService.getPersonaById(personaId, userId);
+        PersonaResponseDTO dto = personaService.getPersonaById(personaId);
         return SuccessResponse.of(dto);
     }
 
-    @Operation(summary = "말투 목록 조회", description = "로그인한 사용자가 자신의 말투들을 조회합니다.")
+
+    @Operation(summary = "말투 전체 조회", description = "모든 말투들을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 목록 조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -72,12 +71,29 @@ public class PersonaController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping
-    public SuccessResponse<List<PersonaResponseDTO>> getMyPersonas(
+    public SuccessResponse<List<PersonaResponseDTO>> getAllPersonas(
             @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
+    ) {
+        List<PersonaResponseDTO> personas = personaService.getAllPersonas();
+        return SuccessResponse.of(personas);
+    }
+
+
+    @Operation(summary = "특정 사용자의 말투 목록 조회", description = "사용자 ID를 통해 해당 사용자의 말투 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "말투 목록 조회 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/user/{userId}")
+    public SuccessResponse<List<PersonaResponseDTO>> getPersonasByUserId(
+            @PathVariable UUID userId
     ) {
         List<PersonaResponseDTO> personas = personaService.getPersonasByUserId(userId);
         return SuccessResponse.of(personas);
     }
+
 
     @Operation(summary = "말투 수정", description = "로그인한 사용자가 자신의 말투를 수정합니다.")
     @ApiResponses({

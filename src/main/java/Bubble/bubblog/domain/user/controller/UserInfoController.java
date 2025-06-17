@@ -57,7 +57,7 @@ public class UserInfoController {
             @ApiResponse(responseCode = "400", description = "입력값 오류 혹은 닉네임 중복",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
     })
-    @PatchMapping("/me")
+    @PutMapping("/me")
     public SuccessResponse<Void> updateUser(
             @Valid @RequestBody UserUpdateDTO request,
             @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {

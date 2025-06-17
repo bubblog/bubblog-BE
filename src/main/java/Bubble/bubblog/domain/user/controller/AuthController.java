@@ -65,7 +65,7 @@ public class AuthController {
                 .secure(true) // HTTPS 환경에서는 true
                 .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Strict")
+                .sameSite("none")
                 .build();
 
         // 쿠키 수동으로 삽입
@@ -96,7 +96,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite("none")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
@@ -121,7 +121,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Strict")
+                .sameSite("none")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());

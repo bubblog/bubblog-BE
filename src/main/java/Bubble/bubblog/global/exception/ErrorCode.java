@@ -15,8 +15,8 @@ public enum ErrorCode {
     // 도메인별 에러
     // 유저
     DUPLICATE_EMAIL(400, "이미 존재하는 이메일입니다."),
-    DUPLICATE_NICKNAME(400, "이미 존재하는 이메일입니다."),
-    USER_NOT_FOUND(404, "존재하지 않는 이메일입니다."),
+    DUPLICATE_NICKNAME(400, "이미 존재하는 닉네임입니다."),
+    USER_NOT_FOUND(404, "존재하지 않는 회원입니다."),
     INVALID_PASSWORD(401, "비밀번호가 틀렸습니다."),
     INVALID_REFRESH_TOKEN(401, "유효하지 않거나 만료된 리프레시 토큰입니다."),
     REFRESH_TOKEN_MISMATCH(401, "저장된 리프레시 토큰과 일치하지 않습니다."),

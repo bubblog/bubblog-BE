@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -74,6 +75,7 @@ public class AuthController {
         return SuccessResponse.of(new LoginResponseDTO(tokens.getAccessToken(), user.getId()));
     }
 
+    @SecurityRequirement(name = "JWT")
     @Operation(summary = "로그아웃", description = "리프레시 토큰을 쿠키와 Redis에서 삭제하고 로그아웃합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그아웃 성공",

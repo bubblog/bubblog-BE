@@ -40,7 +40,9 @@ public class SecurityConfig {
                                 ).permitAll()
                                 // 로그인, 회원가입, 비밀번호 재설정 같은 엔드포인트 허용
                                 .requestMatchers(
-                                        "/api/auth/**"
+                                        "/api/auth/login",
+                                        "/api/auth/signup",
+                                        "/api/auth/reissue"
                                 ).permitAll()
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()

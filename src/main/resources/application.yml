@@ -13,3 +13,10 @@ springdoc:
     path: /api/v3/api-docs
   swagger-ui:
     path: /api/swagger-ui.html
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework: DEBUG
+    org.hibernate.SQL: DEBUG
+

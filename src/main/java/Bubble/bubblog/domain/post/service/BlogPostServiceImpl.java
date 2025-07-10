@@ -69,17 +69,15 @@ public class BlogPostServiceImpl implements BlogPostService {
         return new BlogPostDetailDTO(post, categoryList);
     }
 
-    // 게시글 상세 조회
+    // 게시글 상세 조회 (공개 게시글만)
     @Transactional(readOnly = true)
     @Override
-    public BlogPostDetailDTO getPost(Long postId, UUID userId) {
+    public BlogPostDetailDTO getPost(Long postId) {
         BlogPost post = blogPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        // 조회하고자 하는 게시글이 비공개라면 작성자만이 이를 조회할 수 있음
-        boolean isOwner = post.getUser().getId().equals(userId);
-        if (!post.isPublicVisible() && !isOwner) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_POST_ACCESS);
+        if (!post.isPublicVisible()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND); // 비공개 게시글임을 명시하지 않고 아예 해당 게시글이 존재하지 않는 것으로 처리
         }
 
         List<String> categoryList = categoryClosureRepository.findAncestorNamesByDescendantId(post.getCategory().getId());
@@ -99,11 +97,9 @@ public class BlogPostServiceImpl implements BlogPostService {
     // 특정 사용자의 게시글 목록 조회
     @Transactional(readOnly = true)
     @Override
-    public UserPostsResponseDTO getPostsByUser(UUID targetUserId, UUID requesterUserId, Long categoryId, Pageable pageable) {
+    public UserPostsResponseDTO getPostsByUser(UUID targetUserId, Long categoryId, Pageable pageable) {
         User user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        boolean isOwner = targetUserId.equals(requesterUserId);
 
         List<Long> categoryIds;
         if (categoryId != null) {
@@ -116,13 +112,24 @@ public class BlogPostServiceImpl implements BlogPostService {
         }
 
         Page<BlogPost> posts = blogPostRepository
-                .searchUserPosts(targetUserId, isOwner, categoryIds, pageable);
+                .searchUserPosts(targetUserId, false, categoryIds, pageable);   // isOwner을 false로 고정 -> 공개 게시글만 조회하니까
 
         return new UserPostsResponseDTO(
                 user.getId(),
                 user.getNickname(),
                 posts.map(BlogPostSummaryDTO::new).getContent()
         );
+    }
+
+    // 특정 사용자가 좋아요 누른 게시글 조회
+    @Override
+    @Transactional(readOnly = true)
+    public Page<BlogPostSummaryDTO> getLikedPosts(UUID userId, Pageable pageable) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return postLikeRepository.findLikedPostsByUser(userId, pageable)
+                .map(BlogPostSummaryDTO::new);
     }
 
     // 게시글 삭제

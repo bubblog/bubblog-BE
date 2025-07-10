@@ -30,15 +30,14 @@ import java.util.UUID;
 // 게시글 관련 컨트롤러
 @Tag(name = "Blog Post", description = "블로그 게시글 관련 API")
 @RestController
-@RequestMapping(value = "/api/blogs", produces = "application/json")
+@RequestMapping(value = "/api/posts", produces = "application/json")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "JWT")
 public class BlogPostController {
 
     private final BlogPostService blogPostService;
 
     // 게시글 생성
-    @Operation(summary = "블로그 포스트 생성", description = "사용자가 새 게시글을 작성합니다.")
+    @Operation(summary = "게시글 생성", description = "사용자가 새 게시글을 작성합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 생성 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -59,14 +58,12 @@ public class BlogPostController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "403", description = "비공개 게시글 접근",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{postId}")
-    public SuccessResponse<BlogPostDetailDTO> getPost(@PathVariable Long postId, @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {  // @PathVariable은 URL 경로에 포함된 값을 컨트롤러 메서드의 파라미터로 바인딩해주는 역할을 함
-        return SuccessResponse.of(blogPostService.getPost(postId, userId));
+    public SuccessResponse<BlogPostDetailDTO> getPost(@PathVariable Long postId) {  // @PathVariable은 URL 경로에 포함된 값을 컨트롤러 메서드의 파라미터로 바인딩해주는 역할을 함
+        return SuccessResponse.of(blogPostService.getPost(postId));
     }
 
     // 전체 게시글 조회
@@ -124,28 +121,40 @@ public class BlogPostController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "403", description = "비공개 게시글 접근",
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/users/{userId}")
     public SuccessResponse<UserPostsResponseDTO> getPostsByUser(
             @PathVariable UUID userId,
-            @Parameter(hidden = true) @AuthenticationPrincipal UUID requesterId,
             @RequestParam(required = false) Long categoryId,
             @ParameterObject
             @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         UserPostsResponseDTO responseDTO = blogPostService.getPostsByUser(
                 userId,
-                requesterId,
                 categoryId,
                 pageable
         );
         return SuccessResponse.of(responseDTO);
     }
 
+    // 특정 사용자가 좋아요를 누른 게시글 조회
+    @Operation(summary = "좋아요 누른 게시글 목록 조회", description = "특정 사용자가 좋아요를 누른 게시글 목록을 페이지 단위로 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+    })
+    @GetMapping("/users/{userId}/likes")
+    public SuccessResponse<Page<BlogPostSummaryDTO>> getLikedPosts(
+            @PathVariable UUID userId,
+            @ParameterObject @PageableDefault(size = 6, sort = "post.createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return SuccessResponse.of(blogPostService.getLikedPosts(userId, pageable));
+    }
+
     // 게시글 삭제
-    @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
+    @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "삭제 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -162,7 +171,7 @@ public class BlogPostController {
     }
 
     // 게시글 수정
-    @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
+    @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -180,8 +189,7 @@ public class BlogPostController {
     }
 
     // 좋아요 API
-    @Operation(summary = "게시글 좋아요 토글", description = "특정 게시글에 대해 좋아요 또는 좋아요 취소를 수행합니다. 이미 좋아요를 눌렀다면 취소됩니다."
-    )
+    @Operation(summary = "게시글 좋아요 토글", description = "특정 게시글에 대해 좋아요 또는 좋아요 취소를 수행합니다. 이미 좋아요를 눌렀다면 취소됩니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "좋아요 처리 성공 (true: 좋아요 추가, false: 좋아요 취소)",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),

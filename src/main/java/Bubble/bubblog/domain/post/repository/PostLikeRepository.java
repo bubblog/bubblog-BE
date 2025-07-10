@@ -6,21 +6,15 @@ import Bubble.bubblog.domain.user.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     Optional<PostLike> findByUserAndPost(User user, BlogPost post);
 
-    @EntityGraph(attributePaths = {"user"})
-    @Query("""
-        SELECT p FROM BlogPost p
-        WHERE p IN (
-            SELECT pl.post FROM PostLike pl WHERE pl.user = :user
-        )
-    """)
-    Page<BlogPost> findLikedPostsByUser(@Param("user") User user, Pageable pageable);
+    @Query("SELECT pl.post FROM PostLike pl WHERE pl.user.id = :userId")  // JPQL
+    Page<BlogPost> findLikedPostsByUser(@Param("userId") UUID userId, Pageable pageable);
 }

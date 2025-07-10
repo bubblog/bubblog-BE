@@ -6,7 +6,7 @@ import Bubble.bubblog.domain.user.dto.authRes.TokensDTO;
 import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
 import Bubble.bubblog.domain.user.entity.User;
-import Bubble.bubblog.domain.user.service.UserService;
+import Bubble.bubblog.domain.user.service.UserAuthService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +34,7 @@ import java.util.UUID;
 @RequestMapping(value = "/api/auth", produces = "application/json")
 public class AuthController {
 
-    private final UserService userService;
+    private final UserAuthService userAuthService;
 
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
     @ApiResponses({
@@ -45,7 +45,7 @@ public class AuthController {
     })
     @PostMapping("/signup")
     public SuccessResponse<Void> signup(@RequestBody SignupRequestDTO request) {
-        userService.signup(request);
+        userAuthService.signup(request);
         return SuccessResponse.of();
     }
 
@@ -58,8 +58,8 @@ public class AuthController {
     })
     @PostMapping("/login")
     public SuccessResponse<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
-        User user = userService.login(request); // User 객체 반환
-        TokensDTO tokens = userService.issueTokens(user.getId());
+        User user = userAuthService.login(request); // User 객체 반환
+        TokensDTO tokens = userAuthService.issueTokens(user.getId());
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokens.getRefreshToken())
                 .httpOnly(true)
@@ -90,7 +90,7 @@ public class AuthController {
                                     @CookieValue("refreshToken") String refreshToken,
                                     HttpServletResponse response) {
 
-        userService.logout(userId); // Redis에서 삭제
+        userAuthService.logout(userId); // Redis에서 삭제
 
         // 쿠키 제거 (maxAge=0)
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
@@ -117,7 +117,7 @@ public class AuthController {
     @PostMapping("/reissue")
     public SuccessResponse<ReissueResponseDTO> reissue(@CookieValue("refreshToken") String refreshToken,
                                                        HttpServletResponse response) {       // @RequestBody ReissueRequestDTO request
-        TokensDTO newtokens = userService.reissueTokens(refreshToken);
+        TokensDTO newtokens = userAuthService.reissueTokens(refreshToken);
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", newtokens.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)

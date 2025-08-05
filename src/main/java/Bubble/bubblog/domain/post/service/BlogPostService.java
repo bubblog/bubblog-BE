@@ -15,6 +15,7 @@ public interface BlogPostService {
     Page<BlogPostSummaryDTO> getAllPosts(String keyword, Pageable pageable);
     UserPostsResponseDTO getPostsByUser(UUID targetUserId, Long categoryId, Pageable pageable);
     Page<BlogPostSummaryDTO> getLikedPosts(UUID userId, Pageable pageable);
+    Page<BlogPostSummaryDTO> getPostsByTagId(Long tagId, Pageable pageable);
     void deletePost(Long postId, UUID userId);
     BlogPostDetailDTO updatePost(Long postId, BlogPostRequestDTO request, UUID userId);
 

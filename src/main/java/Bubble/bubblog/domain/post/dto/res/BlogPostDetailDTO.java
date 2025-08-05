@@ -24,8 +24,9 @@ public class BlogPostDetailDTO {
     private UUID userId;
     private String nickname;
     private List<String> categoryList;
+    private List<String> tags;
 
-    public BlogPostDetailDTO(BlogPost post, List<String> categoryList) {
+    public BlogPostDetailDTO(BlogPost post, List<String> categoryList, List<String> tags) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
@@ -39,5 +40,6 @@ public class BlogPostDetailDTO {
         this.userId = post.getUser().getId();
         this.nickname = post.getUser().getNickname();
         this.categoryList = categoryList;
+        this.tags = tags;
     }
 }

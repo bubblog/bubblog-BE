@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +72,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     @Transactional(readOnly = true)
     public BlogPostDetailDTO getMyPost(Long postId, UUID userId) {
-       BlogPost post = blogPostRepository.findById(postId)
+       BlogPost post = blogPostRepository.findDetailById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 로그인한 사용자가 게시글의 소유자인지 확인
@@ -84,7 +85,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         // 소유자라면 공개/비공개 여부와 상관없이 접근 허용
         List<String> categoryList = categoryClosureRepository.findAncestorNamesByDescendantId(post.getCategory().getId());
-        return new BlogPostDetailDTO(post, categoryList);
+
+        List<String> tags = post.getPostTags().stream()
+                .map(postTag -> postTag.getTag().getName())
+                .collect(Collectors.toList());
+
+
+        return new BlogPostDetailDTO(post, categoryList, tags);
     }
 
     // 나의 게시글 목록 조회 (공개 및 비공개 포함)

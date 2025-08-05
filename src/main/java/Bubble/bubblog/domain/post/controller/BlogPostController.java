@@ -35,6 +35,7 @@ import java.util.UUID;
 public class BlogPostController {
 
     private final BlogPostService blogPostService;
+    // private final TagService tagService;
 
     // 게시글 생성
     @Operation(summary = "게시글 생성", description = "사용자가 새 게시글을 작성합니다.", security = @SecurityRequirement(name = "JWT"))
@@ -153,6 +154,15 @@ public class BlogPostController {
         return SuccessResponse.of(blogPostService.getLikedPosts(userId, pageable));
     }
 
+    @Operation(summary = "태그 기반 게시글 조회", description = "특정 태그가 포함된 공개 게시글들을 조회합니다.")
+    @GetMapping("/tags/{tagId}")
+    public SuccessResponse<Page<BlogPostSummaryDTO>> getPostsByTag(
+            @PathVariable Long tagId,
+            @ParameterObject @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return SuccessResponse.of(blogPostService.getPostsByTagId(tagId, pageable));
+    }
+
     // 게시글 삭제
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
@@ -218,5 +228,12 @@ public class BlogPostController {
         blogPostService.incrementViewCount(postId);
         return SuccessResponse.of();
     }
+
+// 현재는 게시글 상세 조회에서 DTO에 태그를 포함하는데 혹시 필요할까봐 작성한 API
+//    // 특정 게시글의 tag 목록 조회
+//    @GetMapping("/{postId}/tags")
+//    public List<TagResponseDTO> getTagsForPost(@PathVariable Long postId) {
+//        return tagService.getTagsForPost(postId);
+//    }
 
 }

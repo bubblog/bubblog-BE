@@ -11,6 +11,10 @@ import Bubble.bubblog.domain.post.entity.BlogPost;
 import Bubble.bubblog.domain.post.entity.PostLike;
 import Bubble.bubblog.domain.post.repository.BlogPostRepository;
 import Bubble.bubblog.domain.post.repository.PostLikeRepository;
+import Bubble.bubblog.domain.tag.entity.PostTag;
+import Bubble.bubblog.domain.tag.entity.Tag;
+import Bubble.bubblog.domain.tag.repository.PostTagRepository;
+import Bubble.bubblog.domain.tag.repository.TagRepository;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.repository.UserRepository;
 import Bubble.bubblog.global.exception.CustomException;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +41,8 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryClosureRepository categoryClosureRepository;
+    private final TagRepository tagRepository;
+    private final PostTagRepository postTagRepository;
     private final AiService aiService;
 
     @Transactional
@@ -62,18 +69,27 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         BlogPost post = blogPostRepository.save(blogPost);
 
+        List<String> tags = request.getTags();   // tag 리스트를 프론트에서 받음
+
+        for (String tagName : tags) {
+            Tag tag = tagRepository.findByName(tagName)
+                    .orElseGet(() -> tagRepository.save(new Tag(tagName)));
+
+            postTagRepository.save(new PostTag(post, tag));
+        }
+
         // AI 서버에 임베딩 요청
         aiService.handlePostTitle(post.getId(), post.getTitle());
         aiService.handlePostContent(post.getId(), post.getContent());
 
-        return new BlogPostDetailDTO(post, categoryList);
+        return new BlogPostDetailDTO(post, categoryList, tags);
     }
 
     // 게시글 상세 조회 (공개 게시글만)
     @Transactional(readOnly = true)
     @Override
     public BlogPostDetailDTO getPost(Long postId) {
-        BlogPost post = blogPostRepository.findById(postId)
+        BlogPost post = blogPostRepository.findDetailById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (!post.isPublicVisible()) {
@@ -82,7 +98,11 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         List<String> categoryList = categoryClosureRepository.findAncestorNamesByDescendantId(post.getCategory().getId());
 
-        return new BlogPostDetailDTO(post, categoryList);
+        List<String> tags = post.getPostTags().stream()    // tag 리스트를 스트림으로 바꿔 각 요소를 반복 처리
+                .map(postTag -> postTag.getTag().getName())   // 태그명을 리턴
+                .collect(Collectors.toList());   // 스트림을 모아 리스트로 변환
+
+        return new BlogPostDetailDTO(post, categoryList, tags);
     }
 
     // 모든 게시글 보기
@@ -131,6 +151,14 @@ public class BlogPostServiceImpl implements BlogPostService {
         return postLikeRepository.findLikedPostsByUser(userId, pageable)
                 .map(BlogPostSummaryDTO::new);
     }
+    
+    // 태그 기반 게시글 목록 조회
+    @Override
+    @Transactional(readOnly = true)
+    public Page<BlogPostSummaryDTO> getPostsByTagId(Long tagId, Pageable pageable) {
+        return blogPostRepository.findPublicPostsByTagId(tagId, pageable)
+                .map(BlogPostSummaryDTO::new);
+    }
 
     // 게시글 삭제
     @Transactional
@@ -151,7 +179,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Transactional
     @Override
     public BlogPostDetailDTO updatePost(Long postId, BlogPostRequestDTO request, UUID userId) {
-        BlogPost post = blogPostRepository.findById(postId)
+        BlogPost post = blogPostRepository.findDetailById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (!post.getUser().getId().equals(userId)) {
@@ -188,7 +216,19 @@ public class BlogPostServiceImpl implements BlogPostService {
                 category
         );
 
-        return new BlogPostDetailDTO(post, categoryList);
+        // 기존 태그 관계 삭제
+        postTagRepository.deleteByPost(post);
+        
+        List<String> tags = request.getTags();
+
+        // 새 태그 저장
+        for (String tagName : tags) {
+            Tag tag = tagRepository.findByName(tagName)
+                    .orElseGet(() -> tagRepository.save(new Tag(tagName)));
+            post.addTag(tag);
+        }
+
+        return new BlogPostDetailDTO(post, categoryList, tags);
     }
 
     // 게시글 좋아요

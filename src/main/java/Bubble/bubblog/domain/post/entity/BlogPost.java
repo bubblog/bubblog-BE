@@ -1,6 +1,8 @@
 package Bubble.bubblog.domain.post.entity;
 
 import Bubble.bubblog.domain.category.entity.Category;
+import Bubble.bubblog.domain.tag.entity.PostTag;
+import Bubble.bubblog.domain.tag.entity.Tag;
 import Bubble.bubblog.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -58,8 +60,12 @@ public class BlogPost {
     @Column(name = "like_count", nullable = false)
     private Long likeCount = 0L;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<PostLike> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<PostTag> postTags = new ArrayList<>();
+
 
     private BlogPost(String title, String content, String summary,
                      boolean isPublic, String thumbnailUrl,
@@ -108,4 +114,12 @@ public class BlogPost {
             this.likeCount -= 1;
         }
     }
+
+    public void addTag(Tag tag) {
+        PostTag postTag = new PostTag(this, tag);
+        this.postTags.add(postTag);
+        tag.getPostTags().add(postTag); // 양방향 연관관계 유지
+    }
+
+
 }

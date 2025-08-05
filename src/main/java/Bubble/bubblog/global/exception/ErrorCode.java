@@ -34,7 +34,11 @@ public enum ErrorCode {
 
     // 페르소나
     PERSONA_NOT_FOUND(404, "말투를 찾을 수 없습니다."),
-    UNAUTHORIZED_PERSONA_ACCESS(403, "해당 말투에 대한 권한이 없습니다.");
+    UNAUTHORIZED_PERSONA_ACCESS(403, "해당 말투에 대한 권한이 없습니다."),
+
+    // 태그
+    DUPLICATE_TAG(400, "태그명이 중복입니다."),
+    TAG_NOT_FOUND(404, "존재하지 않는 태그입니다.");
 
     // S3
 

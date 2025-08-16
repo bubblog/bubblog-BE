@@ -25,12 +25,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping(value = "/api/personas", produces = "application/json")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "JWT")
 public class PersonaController {
 
     private final PersonaService personaService;
 
-    @Operation(summary = "말투 생성", description = "사용자가 챗봇의 말투를 생성합니다.")
+    @Operation(summary = "말투 생성", description = "사용자가 챗봇의 말투를 생성합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 생성 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -54,10 +53,7 @@ public class PersonaController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{personaId}")
-    public SuccessResponse<PersonaResponseDTO> getPersona(
-            @PathVariable Long personaId,
-            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
-    ) {
+    public SuccessResponse<PersonaResponseDTO> getPersona(@PathVariable Long personaId) {
         PersonaResponseDTO dto = personaService.getPersonaById(personaId);
         return SuccessResponse.of(dto);
     }
@@ -66,14 +62,10 @@ public class PersonaController {
     @Operation(summary = "말투 전체 조회", description = "모든 말투들을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 목록 조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "401", description = "인증 실패",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
     })
     @GetMapping
-    public SuccessResponse<List<PersonaResponseDTO>> getAllPersonas(
-            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
-    ) {
+    public SuccessResponse<List<PersonaResponseDTO>> getAllPersonas() {
         List<PersonaResponseDTO> personas = personaService.getAllPersonas();
         return SuccessResponse.of(personas);
     }
@@ -86,16 +78,14 @@ public class PersonaController {
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/user/{userId}")
-    public SuccessResponse<List<PersonaResponseDTO>> getPersonasByUserId(
-            @PathVariable UUID userId
-    ) {
+    @GetMapping("/users/{userId}")
+    public SuccessResponse<List<PersonaResponseDTO>> getPersonasByUserId(@PathVariable UUID userId) {
         List<PersonaResponseDTO> personas = personaService.getPersonasByUserId(userId);
         return SuccessResponse.of(personas);
     }
 
 
-    @Operation(summary = "말투 수정", description = "로그인한 사용자가 자신의 말투를 수정합니다.")
+    @Operation(summary = "말투 수정", description = "로그인한 사용자가 자신의 말투를 수정합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 수정 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -116,7 +106,7 @@ public class PersonaController {
         return SuccessResponse.of(updated);
     }
 
-    @Operation(summary = "말투 삭제", description = "로그인한 사용자가 자신의 말투를 삭제합니다.")
+    @Operation(summary = "말투 삭제", description = "로그인한 사용자가 자신의 말투를 삭제합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 삭제 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),

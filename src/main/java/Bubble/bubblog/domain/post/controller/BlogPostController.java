@@ -1,5 +1,8 @@
 package Bubble.bubblog.domain.post.controller;
 
+import Bubble.bubblog.domain.comment.dto.req.CreateCommentDTO;
+import Bubble.bubblog.domain.comment.dto.res.CommentResponseDTO;
+import Bubble.bubblog.domain.comment.service.commentservice.CommentService;
 import Bubble.bubblog.domain.post.dto.req.BlogPostRequestDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
@@ -25,20 +28,22 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 // 게시글 관련 컨트롤러
 @Tag(name = "Blog Post", description = "블로그 게시글 관련 API")
 @RestController
-@RequestMapping(value = "/api/blogs", produces = "application/json")
+@RequestMapping(value = "/api/posts", produces = "application/json")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "JWT")
 public class BlogPostController {
 
     private final BlogPostService blogPostService;
+    private final CommentService commentService;
+    // private final TagService tagService;
 
     // 게시글 생성
-    @Operation(summary = "블로그 포스트 생성", description = "사용자가 새 게시글을 작성합니다.")
+    @Operation(summary = "게시글 생성", description = "사용자가 새 게시글을 작성합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 생성 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -59,14 +64,12 @@ public class BlogPostController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "403", description = "비공개 게시글 접근",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{postId}")
-    public SuccessResponse<BlogPostDetailDTO> getPost(@PathVariable Long postId, @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {  // @PathVariable은 URL 경로에 포함된 값을 컨트롤러 메서드의 파라미터로 바인딩해주는 역할을 함
-        return SuccessResponse.of(blogPostService.getPost(postId, userId));
+    public SuccessResponse<BlogPostDetailDTO> getPost(@PathVariable Long postId) {  // @PathVariable은 URL 경로에 포함된 값을 컨트롤러 메서드의 파라미터로 바인딩해주는 역할을 함
+        return SuccessResponse.of(blogPostService.getPost(postId));
     }
 
     // 전체 게시글 조회
@@ -124,28 +127,36 @@ public class BlogPostController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "403", description = "비공개 게시글 접근",
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/users/{userId}")
     public SuccessResponse<UserPostsResponseDTO> getPostsByUser(
             @PathVariable UUID userId,
-            @Parameter(hidden = true) @AuthenticationPrincipal UUID requesterId,
             @RequestParam(required = false) Long categoryId,
             @ParameterObject
             @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         UserPostsResponseDTO responseDTO = blogPostService.getPostsByUser(
                 userId,
-                requesterId,
                 categoryId,
                 pageable
         );
         return SuccessResponse.of(responseDTO);
     }
 
+    // 태그 기반 게시글 조회
+    @Operation(summary = "태그 기반 게시글 조회", description = "특정 태그가 포함된 공개 게시글들을 조회합니다.")
+    @GetMapping("/tags/{tagId}")
+    public SuccessResponse<Page<BlogPostSummaryDTO>> getPostsByTag(
+            @PathVariable Long tagId,
+            @ParameterObject @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return SuccessResponse.of(blogPostService.getPostsByTagId(tagId, pageable));
+    }
+
     // 게시글 삭제
-    @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
+    @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "삭제 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -162,7 +173,7 @@ public class BlogPostController {
     }
 
     // 게시글 수정
-    @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
+    @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -180,8 +191,7 @@ public class BlogPostController {
     }
 
     // 좋아요 API
-    @Operation(summary = "게시글 좋아요 토글", description = "특정 게시글에 대해 좋아요 또는 좋아요 취소를 수행합니다. 이미 좋아요를 눌렀다면 취소됩니다."
-    )
+    @Operation(summary = "게시글 좋아요 토글", description = "특정 게시글에 대해 좋아요 또는 좋아요 취소를 수행합니다. 이미 좋아요를 눌렀다면 취소됩니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "좋아요 처리 성공 (true: 좋아요 추가, false: 좋아요 취소)",
                     content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -209,6 +219,52 @@ public class BlogPostController {
     public SuccessResponse<Void> incrementView(@PathVariable Long postId) {
         blogPostService.incrementViewCount(postId);
         return SuccessResponse.of();
+    }
+
+// 현재는 게시글 상세 조회에서 DTO에 태그를 포함하는데 혹시 필요할까봐 작성한 API
+//    // 특정 게시글의 tag 목록 조회
+//    @GetMapping("/{postId}/tags")
+//    public List<TagResponseDTO> getTagsForPost(@PathVariable Long postId) {
+//        return tagService.getTagsForPost(postId);
+//    }
+
+
+    /** ========================== 댓글 관련 컨트롤러 ========================== */
+    /** 댓글 생성 */
+    @Operation(summary = "댓글 생성", description = "사용자가 새 댓글을 작성합니다.", security = @SecurityRequirement(name = "JWT"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "댓글 생성 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/{postId}/comments")
+    public SuccessResponse<CommentResponseDTO> createComment(@PathVariable("postId") Long postId, @Valid @RequestBody CreateCommentDTO request,
+                                                            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId) {
+        CommentResponseDTO dto = commentService.createComment(request, postId, userId);
+        return SuccessResponse.of(dto);
+    }
+
+    /** 특정 게시글의 루트 댓글 목록 조회 */
+    @Operation(summary = "게시글의 루트 댓글 목록 조회", description = "postId에 해당하는 루트 댓글 목록을 작성시간 오름차순으로 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/{postId}/comments")
+    public SuccessResponse<List<CommentResponseDTO>> getCommentsByPost(@PathVariable Long postId) {
+        List<CommentResponseDTO> result = commentService.getRootCommentsByPost(postId);
+        return SuccessResponse.of(result);
+    }
+
+    /** 현재 게시글의 전체 댓글 수 조회 */
+    @Operation(summary = "특정 게시글의 전체 댓글 수 조회", description = "특정 postId에 달린 전체 댓글(대댓글 포함) 수를 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/{postId}/comments/count")
+    public SuccessResponse<Long> getCommentCountForPost(@PathVariable Long postId) {
+        Long count = commentService.getCommentCountForPost(postId);
+        return SuccessResponse.of(count);
     }
 
 }

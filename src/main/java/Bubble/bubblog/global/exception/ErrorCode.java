@@ -34,7 +34,22 @@ public enum ErrorCode {
 
     // 페르소나
     PERSONA_NOT_FOUND(404, "말투를 찾을 수 없습니다."),
-    UNAUTHORIZED_PERSONA_ACCESS(403, "해당 말투에 대한 권한이 없습니다.");
+    UNAUTHORIZED_PERSONA_ACCESS(403, "해당 말투에 대한 권한이 없습니다."),
+
+    // 태그
+    DUPLICATE_TAG(400, "태그명이 중복입니다."),
+    TAG_NOT_FOUND(404, "존재하지 않는 태그입니다."),
+
+    // 댓글
+    COMMENT_NOT_FOUND(404, "해당 댓글을 찾을 수 없습니다."),
+    PARENT_COMMENT_NOT_FOUND(404, "부모 댓글을 찾을 수 없습니다."),
+    INVALID_PARENT_FOR_POST(400, "해당 부모는 다른 게시글의 댓글입니다."),
+    REPLY_TO_REPLY_NOT_ALLOWED(400, "대댓글에 대해 댓글을 작성할 수 없습니다."),
+    REPLY_TO_DELETED_COMMENT_NOT_ALLOWED(400, "삭제된 댓글에 댓글을 작성할 수 없습니다."),
+    NO_PERMISSION_TO_EDIT_COMMENT(403, "해당 댓글을 수정할 권한이 없습니다."),
+    NO_PERMISSION_TO_DELETE_COMMENT(403, "해당 댓글을 삭제할 권한이 없습니다."),
+    NOT_ROOT_COMMENT(400, "자식 댓글의 스레드를 조회할 수 없습니다. 루트 댓글의 스레드를 조회해주세요."),
+    CANNOT_LIKE_DELETED_COMMENT(400, "삭제된 댓글에 좋아요를 누를 수 없습니다.");
 
     // S3
 

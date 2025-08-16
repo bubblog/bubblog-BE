@@ -2,11 +2,14 @@ package Bubble.bubblog.domain.user.entity;
 
 import Bubble.bubblog.domain.category.entity.Category;
 import Bubble.bubblog.domain.chatbot.entity.Persona;
+import Bubble.bubblog.domain.comment.entity.Comment;
 import Bubble.bubblog.domain.post.entity.BlogPost;
 import Bubble.bubblog.domain.post.entity.PostLike;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +22,7 @@ import java.util.UUID;
 @Getter
 @Entity     // 현재 클래스가 JPA 엔티티임을 선언 -> 이 클래스를 기반으로 DB 테이블을 생성 및 조작 가능. JPA가 이 클래스를 보고 users 테이블과 매핑
 @Table(name = "users")   // 해당 엔티티가 매핑될 테이블 명 users
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // 기본 생성자 protected 접근 제어
 public class User {
 
     @Id     // primary key임을 나타내는 어노테이션
@@ -56,11 +60,11 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Persona> persona = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<PostLike> likes = new ArrayList<>();
 
-
-
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)  // Soft delete 이므로 CASCADE 설정 X
+    private List<Comment> comments;
 
     // 프로필 이미지 설정하고 user 생성
     private static User of(String email, String password, String nickname, String profileImageUrl) {
@@ -94,6 +98,5 @@ public class User {
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
-
 
 }

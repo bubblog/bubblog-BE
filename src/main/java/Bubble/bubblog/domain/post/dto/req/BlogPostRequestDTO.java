@@ -4,9 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
+@Builder
 @Schema(description = "블로그 게시글 작성 요청 DTO")
 public class BlogPostRequestDTO {
 
@@ -32,4 +36,7 @@ public class BlogPostRequestDTO {
 
     @Schema(description = "썸네일 URL", example = "https://bucketName.s3.amazonaws.com/images/@#@#@#_hanhwaeagles.jpg")
     private String thumbnailUrl;
+
+    @Schema(description = "태그 리스트", example = "[\"spring\", \"jpa\"]")
+    private List<String> tags;
 }

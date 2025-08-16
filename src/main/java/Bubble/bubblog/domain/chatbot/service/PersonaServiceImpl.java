@@ -66,7 +66,6 @@ public class PersonaServiceImpl implements PersonaService {
                 .toList();
     }
 
-
     // 말투 수정
     @Transactional
     @Override

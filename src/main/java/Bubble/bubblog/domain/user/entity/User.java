@@ -63,7 +63,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<PostLike> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "blogPost", fetch = FetchType.LAZY)  // Soft delete 이므로 CASCADE 설정 X
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)  // Soft delete 이므로 CASCADE 설정 X
     private List<Comment> comments;
 
     // 프로필 이미지 설정하고 user 생성

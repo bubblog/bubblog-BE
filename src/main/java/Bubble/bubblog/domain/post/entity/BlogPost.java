@@ -67,7 +67,7 @@ public class BlogPost {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostTag> postTags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "blogPost", fetch = FetchType.LAZY)  // Soft delete 이므로 CASCADE 설정 X
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)  // Soft delete 이므로 CASCADE 설정 X
     private List<Comment> comments;
 
 

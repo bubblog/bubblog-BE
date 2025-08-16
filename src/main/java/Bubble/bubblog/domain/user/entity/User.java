@@ -2,6 +2,7 @@ package Bubble.bubblog.domain.user.entity;
 
 import Bubble.bubblog.domain.category.entity.Category;
 import Bubble.bubblog.domain.chatbot.entity.Persona;
+import Bubble.bubblog.domain.comment.entity.Comment;
 import Bubble.bubblog.domain.post.entity.BlogPost;
 import Bubble.bubblog.domain.post.entity.PostLike;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
@@ -62,8 +63,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<PostLike> likes = new ArrayList<>();
 
-
-
+    @OneToMany(mappedBy = "blogPost", fetch = FetchType.LAZY)  // Soft delete 이므로 CASCADE 설정 X
+    private List<Comment> comments;
 
     // 프로필 이미지 설정하고 user 생성
     private static User of(String email, String password, String nickname, String profileImageUrl) {
@@ -97,6 +98,5 @@ public class User {
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
-
 
 }

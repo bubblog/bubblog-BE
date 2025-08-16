@@ -37,11 +37,12 @@ public class SecurityConfig {
                                         "/api/swagger-ui/**",
                                         "/api/swagger-resources/**",
                                         "/api/v3/api-docs/**",
-                                        "/api/v3/api-docs.yaml"
+                                        "/api/v3/api-docs.yaml",
+                                        "/swagger-ui.html"
                                 ).permitAll()
                                 // 로그인, 회원가입, 비밀번호 재설정 같은 엔드포인트 허용
                                 .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/reissue").permitAll()
-                                // 게시글 조회 관련 API 허용
+                                // 게시글 조회 관련 API 허용 (특정 게시글의 전체 댓글 조회도 여기에 포함)
                                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                                 // 조회수 증가 API 허용
                                 .requestMatchers(HttpMethod.PUT, "/api/posts/*/view").permitAll()
@@ -49,6 +50,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/personas/**").permitAll()
                                 // 사용자 정보 조회 관련 API 허용
                                 .requestMatchers(HttpMethod.GET, "/api/users/{userId}").permitAll()
+                                // 댓글 조회 관련 API 허용
+                                .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
                 )

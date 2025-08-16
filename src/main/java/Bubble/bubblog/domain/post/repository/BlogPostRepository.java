@@ -51,4 +51,11 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long>, BlogP
     @Query("SELECT bp FROM BlogPost bp JOIN bp.postTags pt WHERE pt.tag.id = :tagId AND bp.publicVisible = true")
     Page<BlogPost> findPublicPostsByTagId(@Param("tagId") Long tagId, Pageable pageable);
 
+    // 내가 쓴 게시글 중 다른 사람의 댓글이 존재하는 게시글 목록 조회 (Comment의 필드를 직접적으로 사용하지 않으므로 fetch join 할 필요 없다.)
+    @Query(value = """
+        SELECT DISTINCT bp FROM BlogPost bp
+        JOIN bp.comments c
+        WHERE bp.user.id = :userId AND c.isDeleted = false AND c.user.id != :userId
+    """)
+    Page<BlogPost> findByUserAndCommentExists(@Param("userId") UUID userId, Pageable pageable);
 }

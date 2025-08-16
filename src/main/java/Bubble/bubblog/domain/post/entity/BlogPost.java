@@ -1,6 +1,7 @@
 package Bubble.bubblog.domain.post.entity;
 
 import Bubble.bubblog.domain.category.entity.Category;
+import Bubble.bubblog.domain.comment.entity.Comment;
 import Bubble.bubblog.domain.tag.entity.PostTag;
 import Bubble.bubblog.domain.tag.entity.Tag;
 import Bubble.bubblog.domain.user.entity.User;
@@ -65,6 +66,9 @@ public class BlogPost {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostTag> postTags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "blogPost", fetch = FetchType.LAZY)  // Soft delete 이므로 CASCADE 설정 X
+    private List<Comment> comments;
 
 
     private BlogPost(String title, String content, String summary,

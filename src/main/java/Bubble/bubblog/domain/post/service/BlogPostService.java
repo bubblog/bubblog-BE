@@ -21,4 +21,8 @@ public interface BlogPostService {
 
     boolean toggleLike(Long postId, UUID userId); // 좋아요 토글 (좋아요/취소)
     void incrementViewCount(Long postId);
+
+    Page<BlogPostSummaryDTO> getMyCommentedPosts(UUID userId, Pageable pageable);
+
+    Page<BlogPostSummaryDTO> getMyPostsWithComments(UUID userId, Pageable pageable);
 }

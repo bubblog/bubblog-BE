@@ -3,6 +3,7 @@ package Bubble.bubblog.domain.post.service;
 import Bubble.bubblog.domain.category.entity.Category;
 import Bubble.bubblog.domain.category.repository.CategoryClosureRepository;
 import Bubble.bubblog.domain.category.repository.CategoryRepository;
+import Bubble.bubblog.domain.comment.repository.CommentRepository;
 import Bubble.bubblog.domain.post.dto.req.BlogPostRequestDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostSummaryDTO;
@@ -44,6 +45,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
     private final AiService aiService;
+    private final CommentRepository commentRepository;
 
     @Transactional
     @Override
@@ -141,7 +143,7 @@ public class BlogPostServiceImpl implements BlogPostService {
         );
     }
 
-    // 특정 사용자가 좋아요 누른 게시글 조회
+    // 인증된 사용자가 자신이 좋아요 누른 게시글 조회
     @Override
     @Transactional(readOnly = true)
     public Page<BlogPostSummaryDTO> getLikedPosts(UUID userId, Pageable pageable) {
@@ -261,6 +263,22 @@ public class BlogPostServiceImpl implements BlogPostService {
         BlogPost post = blogPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         post.incrementViewCount();
+    }
+
+    /** 내가 댓글 단 게시글 목록 조회 */
+    @Transactional(readOnly = true)
+    @Override
+    public Page<BlogPostSummaryDTO> getMyCommentedPosts(UUID userId, Pageable pageable) {
+        Page<BlogPost> commentedPosts = commentRepository.findCommentedPostsByUserId(userId, pageable);
+        return commentedPosts.map(BlogPostSummaryDTO::new);
+    }
+
+    /** 내가 작성한 게시글 중 다른 사람의 댓글이 달린 게시글 목록 조회 */
+    @Transactional(readOnly = true)
+    @Override
+    public Page<BlogPostSummaryDTO> getMyPostsWithComments(UUID userId, Pageable pageable) {
+        Page<BlogPost> posts = blogPostRepository.findByUserAndCommentExists(userId, pageable);
+        return posts.map(BlogPostSummaryDTO::new);
     }
 
 }

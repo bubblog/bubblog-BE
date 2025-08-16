@@ -1,0 +1,15 @@
+package Bubble.bubblog.domain.comment.dto.res;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.util.List;
+
+@Getter
+@Builder
+@AllArgsConstructor
+public class CommentThreadResponseDTO {
+    private CommentResponseDTO root;
+    private List<CommentResponseDTO> children;
+}

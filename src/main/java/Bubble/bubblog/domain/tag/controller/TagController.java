@@ -2,7 +2,8 @@ package Bubble.bubblog.domain.tag.controller;
 
 import Bubble.bubblog.domain.tag.dto.res.TagResponseDTO;
 import Bubble.bubblog.domain.tag.service.TagService;
-import Bubble.bubblog.global.dto.SuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.tag.TagListSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.tag.TagSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,7 +30,7 @@ public class TagController {
     @Operation(summary = "태그 목록 조회", description = "전체 태그 목록을 조회.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "태그 목록 조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = TagListSuccessResponse.class))),
     })
     @GetMapping
     public List<TagResponseDTO> getAllTags() {
@@ -39,7 +40,7 @@ public class TagController {
     @Operation(summary = "태그 상세 조회", description = "특정 태그를 조회.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 생성 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = TagSuccessResponse.class))),
     })
     @GetMapping("/{id}")
     public TagResponseDTO getTag(@PathVariable Long id) {

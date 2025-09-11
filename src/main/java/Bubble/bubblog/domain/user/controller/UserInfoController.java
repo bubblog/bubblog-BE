@@ -11,6 +11,11 @@ import Bubble.bubblog.domain.user.dto.req.UserUpdateDTO;
 import Bubble.bubblog.domain.user.service.UserInfoService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.comment.CommentPageSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.info.UserInfoSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.info.UserPostsSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.post.BlogPostDetailSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.post.BlogPostSummarySuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,7 +48,7 @@ public class UserInfoController {
 
     @Operation(summary = "사용자 정보 조회", description = "특정 사용자의 정보를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = UserInfoSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{userId}")
@@ -66,7 +71,7 @@ public class UserInfoController {
 
     @Operation(summary = "나의 게시글 상세 조회", description = "로그인한 사용자의 특정 게시글 상세 정보를 조회합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = BlogPostDetailSuccessResponse.class))),
             @ApiResponse(responseCode = "403", description = "접근 권한 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -88,7 +93,7 @@ public class UserInfoController {
             security = @SecurityRequirement(name = "JWT")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = UserPostsSuccessResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -104,7 +109,7 @@ public class UserInfoController {
 
     @Operation(summary = "내가 작성한 게시글 중 다른 사람이 댓글을 단 게시글 목록 조회", description = "현재 인증된 사용자가 작성한 게시글 중 하나라도 댓글이 달린 게시글을 조회합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = BlogPostSummarySuccessResponse.class)))
     })
     @GetMapping("/me/posts/comments")
     public SuccessResponse<Page<BlogPostSummaryDTO>> getMyPostsWithComments(
@@ -116,7 +121,7 @@ public class UserInfoController {
 
     @Operation(summary = "내가 좋아요 누른 게시글 목록 조회", description = "내가 좋아요를 누른 게시글 목록을 페이지 단위로 조회합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "좋아요한 게시글 목록 조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+            @ApiResponse(responseCode = "200", description = "좋아요한 게시글 목록 조회 성공", content = @Content(schema = @Schema(implementation = BlogPostSummarySuccessResponse.class)))
     })
     @GetMapping("/me/likes/posts")
     public SuccessResponse<Page<BlogPostSummaryDTO>> getLikedPosts(
@@ -128,7 +133,7 @@ public class UserInfoController {
 
     @Operation(summary = "내가 댓글 단 게시글 목록 조회", description = "내가 댓글 단 게시글 목록을 페이지 단위로 조회합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "댓글 단 게시글 목록 조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+            @ApiResponse(responseCode = "200", description = "댓글 단 게시글 목록 조회 성공", content = @Content(schema = @Schema(implementation = BlogPostSummarySuccessResponse.class)))
     })
     @GetMapping("/me/comments/posts")
     public SuccessResponse<Page<BlogPostSummaryDTO>> getMyCommentedPosts(
@@ -140,7 +145,7 @@ public class UserInfoController {
 
     @Operation(summary = "내가 쓴 댓글 목록 조회", description = "현재 인증된 사용자가 작성한 댓글 목록을 페이지 단위로 최근에 작성한 순으로 조회합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = CommentPageSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/me/comments")

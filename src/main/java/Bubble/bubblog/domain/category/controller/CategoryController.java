@@ -7,6 +7,9 @@ import Bubble.bubblog.domain.category.dto.res.CategoryTreeDTO;
 import Bubble.bubblog.domain.category.service.CategoryService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.category.CategoryListSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.category.CategorySuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.category.CategoryTreeSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,7 +38,7 @@ public class CategoryController {
     @Operation(summary = "카테고리 생성", description = "새 카테고리를 생성합니다. (부모 ID는 선택)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "생성 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = CategorySuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "대상을 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -86,7 +89,7 @@ public class CategoryController {
     @Operation(summary = "모든 카테고리 조회", description = "유저의 모든 카테고리를 리스트로 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+                    content = @Content(schema = @Schema(implementation = CategoryListSuccessResponse.class)))
     })
     @GetMapping
     public SuccessResponse<List<CategoryDTO>> getAllCategories(
@@ -98,7 +101,7 @@ public class CategoryController {
     @Operation(summary = "카테고리 트리 조회", description = "유저의 모든 카테고리를 트리 구조로 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+                    content = @Content(schema = @Schema(implementation = CategoryTreeSuccessResponse.class)))
     })
     @GetMapping("/{userId}/tree")
     public SuccessResponse<List<CategoryTreeDTO>> getAllCategoriesAsTree(

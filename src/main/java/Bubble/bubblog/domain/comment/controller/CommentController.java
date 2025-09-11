@@ -6,6 +6,9 @@ import Bubble.bubblog.domain.comment.dto.res.CommentThreadResponseDTO;
 import Bubble.bubblog.domain.comment.service.commentservice.CommentService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.comment.CommentPageSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.comment.CommentSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.comment.CommentThreadSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,7 +39,7 @@ public class CommentController {
     /** 특정 댓글 단건 조회 */
     @Operation(summary = "댓글 단건 상세 조회", description = "특정 commentId의 단건 상세를 조회합니다")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = CommentSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{commentId}")
@@ -48,7 +51,7 @@ public class CommentController {
     /** 특정 루트 댓글의 자식 댓글 목록을 페이징으로 조회 */
     @Operation(summary = "루트 댓글의 자식들 페이징 조회", description = "특정 루트 댓글의 자식들을 페이징 처리하여 반환합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = CommentPageSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "해당 루트 댓글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{commentId}/children")
@@ -61,7 +64,7 @@ public class CommentController {
     /** 특정 루트 댓글과 그 모든 자식 댓글 함께 조회 (스레드 조회) */
     @Operation(summary = "루트 댓글과 모든 자식들을 함께 스레드로 조회", description = "루트 댓글 하나와 그 자식(대댓글)들을 함께 반환합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = CommentThreadSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "해당 루트 댓글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{commentId}/thread")
@@ -74,7 +77,7 @@ public class CommentController {
     /** 댓글 수정 */
     @Operation(summary = "댓글 수정", description = "본인이 작성한 댓글만 수정할 수 있습니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "수정 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "수정 성공", content = @Content(schema = @Schema(implementation = CommentSuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "수정 권한 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))

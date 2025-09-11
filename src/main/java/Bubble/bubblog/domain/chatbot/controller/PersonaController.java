@@ -5,6 +5,8 @@ import Bubble.bubblog.domain.chatbot.dto.res.PersonaResponseDTO;
 import Bubble.bubblog.domain.chatbot.service.PersonaService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.persona.PersonaListSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.persona.PersonaSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +34,7 @@ public class PersonaController {
     @Operation(summary = "말투 생성", description = "사용자가 챗봇의 말투를 생성합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 생성 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = PersonaSuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
@@ -48,7 +50,7 @@ public class PersonaController {
     @Operation(summary = "특정 말투 조회", description = "특정 말투를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = PersonaSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 말투",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -62,7 +64,7 @@ public class PersonaController {
     @Operation(summary = "말투 전체 조회", description = "모든 말투들을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 목록 조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+                    content = @Content(schema = @Schema(implementation = PersonaListSuccessResponse.class)))
     })
     @GetMapping
     public SuccessResponse<List<PersonaResponseDTO>> getAllPersonas() {
@@ -74,7 +76,7 @@ public class PersonaController {
     @Operation(summary = "특정 사용자의 말투 목록 조회", description = "사용자 ID를 통해 해당 사용자의 말투 목록을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 목록 조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = PersonaListSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -88,7 +90,7 @@ public class PersonaController {
     @Operation(summary = "말투 수정", description = "로그인한 사용자가 자신의 말투를 수정합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "말투 수정 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = PersonaSuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "접근 권한 없음",
@@ -116,7 +118,7 @@ public class PersonaController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DeleteMapping("/{personaId}")
-    public SuccessResponse<String> deletePersona(
+    public SuccessResponse<Void> deletePersona(
             @PathVariable Long personaId,
             @Parameter(hidden = true) @AuthenticationPrincipal UUID userId
     ) {

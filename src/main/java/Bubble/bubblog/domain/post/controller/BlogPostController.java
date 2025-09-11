@@ -10,6 +10,13 @@ import Bubble.bubblog.domain.post.dto.res.UserPostsResponseDTO;
 import Bubble.bubblog.domain.post.service.BlogPostService;
 import Bubble.bubblog.global.dto.ErrorResponse;
 import Bubble.bubblog.global.dto.SuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.comment.CommentListSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.comment.CommentSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.info.UserPostsSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.post.BlogPostDetailSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.post.BlogPostSummarySuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.post.BooleanSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.post.LongSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,7 +53,7 @@ public class BlogPostController {
     @Operation(summary = "게시글 생성", description = "사용자가 새 게시글을 작성합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 생성 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = BlogPostDetailSuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "카테고리 권한 없음",
@@ -63,7 +70,7 @@ public class BlogPostController {
     @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = BlogPostDetailSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -97,7 +104,7 @@ public class BlogPostController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
+                    content = @Content(schema = @Schema(implementation = BlogPostSummarySuccessResponse.class)))
     })
     @GetMapping
     public SuccessResponse<Page<BlogPostSummaryDTO>> getAllPosts(
@@ -126,7 +133,7 @@ public class BlogPostController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = UserPostsSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -147,6 +154,12 @@ public class BlogPostController {
 
     // 태그 기반 게시글 조회
     @Operation(summary = "태그 기반 게시글 조회", description = "특정 태그가 포함된 공개 게시글들을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = BlogPostSummarySuccessResponse.class))),
+            @ApiResponse(responseCode = "404", description = "태그를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/tags/{tagId}")
     public SuccessResponse<Page<BlogPostSummaryDTO>> getPostsByTag(
             @PathVariable Long tagId,
@@ -194,7 +207,7 @@ public class BlogPostController {
     @Operation(summary = "게시글 좋아요 토글", description = "특정 게시글에 대해 좋아요 또는 좋아요 취소를 수행합니다. 이미 좋아요를 눌렀다면 취소됩니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "좋아요 처리 성공 (true: 좋아요 추가, false: 좋아요 취소)",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = BooleanSuccessResponse.class))),
             @ApiResponse(responseCode = "401", description = "JWT 인증 누락",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글 또는 사용자 없음",
@@ -233,7 +246,7 @@ public class BlogPostController {
     /** 댓글 생성 */
     @Operation(summary = "댓글 생성", description = "사용자가 새 댓글을 작성합니다.", security = @SecurityRequirement(name = "JWT"))
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "댓글 생성 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "댓글 생성 성공", content = @Content(schema = @Schema(implementation = CommentSuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "입력값이 유효하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/{postId}/comments")
@@ -246,7 +259,7 @@ public class BlogPostController {
     /** 특정 게시글의 루트 댓글 목록 조회 */
     @Operation(summary = "게시글의 루트 댓글 목록 조회", description = "postId에 해당하는 루트 댓글 목록을 작성시간 오름차순으로 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = CommentListSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{postId}/comments")
@@ -258,7 +271,7 @@ public class BlogPostController {
     /** 현재 게시글의 전체 댓글 수 조회 */
     @Operation(summary = "특정 게시글의 전체 댓글 수 조회", description = "특정 postId에 달린 전체 댓글(대댓글 포함) 수를 반환합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = LongSuccessResponse.class))),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{postId}/comments/count")

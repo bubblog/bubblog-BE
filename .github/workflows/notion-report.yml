@@ -46,7 +46,7 @@ jobs:
           # Area 기본값: AI
           # - 필요 시 'Frontend' 또는 'Spring'으로 변경하세요.
           # - 라벨 기반 자동 설정으로 바꾸려면 이후에 AREA 계산 로직을 추가하면 됩니다.
-          AREA="AI"
+          AREA="Spring"
 
           curl -sS -X POST "https://api.notion.com/v1/pages" \
             -H "Authorization: Bearer ${NOTION_TOKEN}" \

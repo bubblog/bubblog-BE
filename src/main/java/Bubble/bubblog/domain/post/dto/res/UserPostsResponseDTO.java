@@ -1,15 +1,16 @@
 package Bubble.bubblog.domain.post.dto.res;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@AllArgsConstructor
-public class UserPostsResponseDTO {
-    private UUID userId;
-    private String nickname;
-    private List<BlogPostSummaryDTO> posts;
-}
+public record UserPostsResponseDTO(
+        UUID userId,
+        String nickname,
+        List<BlogPostSummaryDTO> posts,
+        int page,
+        int size,
+        long totalElements,
+        int totalPages,
+        boolean hasNext
+) {}
+

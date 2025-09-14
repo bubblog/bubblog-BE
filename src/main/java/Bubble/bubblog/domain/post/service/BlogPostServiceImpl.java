@@ -139,7 +139,12 @@ public class BlogPostServiceImpl implements BlogPostService {
         return new UserPostsResponseDTO(
                 user.getId(),
                 user.getNickname(),
-                posts.map(BlogPostSummaryDTO::new).getContent()
+                posts.map(BlogPostSummaryDTO::new).getContent(),
+                posts.getNumber(),
+                posts.getSize(),
+                posts.getTotalElements(),
+                posts.getTotalPages(),
+                posts.hasNext()
         );
     }
 

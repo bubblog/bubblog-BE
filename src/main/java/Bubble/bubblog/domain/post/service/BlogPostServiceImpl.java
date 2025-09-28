@@ -18,9 +18,11 @@ import Bubble.bubblog.domain.tag.repository.PostTagRepository;
 import Bubble.bubblog.domain.tag.repository.TagRepository;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.repository.UserRepository;
+import Bubble.bubblog.global.dto.kafka.EmbeddingRequestKafkaDTO;
+import Bubble.bubblog.global.dto.kafka.EmbeddingType;
 import Bubble.bubblog.global.exception.CustomException;
 import Bubble.bubblog.global.exception.ErrorCode;
-import Bubble.bubblog.global.service.AiService;
+import Bubble.bubblog.global.service.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,8 +46,12 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final CategoryClosureRepository categoryClosureRepository;
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
-    private final AiService aiService;
+    private final KafkaProducerService kafkaProducerService;
+    // private final AiService aiService;   // 코드 리뷰 후 필요없다 판단되면 제거 예정 -> 기존 webclient 방식
     private final CommentRepository commentRepository;
+
+    // 토픽 이름 상수 설정
+    private static final String KAFKA_TOPIC = "Embedding-Request-Topic";
 
     @Transactional
     @Override
@@ -81,8 +87,17 @@ public class BlogPostServiceImpl implements BlogPostService {
         }
 
         // AI 서버에 임베딩 요청
-        aiService.handlePostTitle(post.getId(), post.getTitle());
-        aiService.handlePostContent(post.getId(), post.getContent());
+        // aiService.handlePostTitle(post.getId(), post.getTitle());
+        // aiService.handlePostContent(post.getId(), post.getContent());
+
+        /** Kafka Producer를 호출 */
+        // 제목과 내용 임베딩 요청 메세지 생성
+        EmbeddingRequestKafkaDTO titleRequest = new EmbeddingRequestKafkaDTO(post.getId(), post.getTitle(), EmbeddingType.TITLE);
+        EmbeddingRequestKafkaDTO contentRequest = new EmbeddingRequestKafkaDTO(post.getId(), post.getContent(), EmbeddingType.CONTENT);
+
+        // 메세지 발송
+        kafkaProducerService.sendMessage(KAFKA_TOPIC, titleRequest);
+        kafkaProducerService.sendMessage(KAFKA_TOPIC, contentRequest);
 
         return new BlogPostDetailDTO(post, categoryList, tags);
     }
@@ -208,10 +223,14 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         // 분기 처리
         if (titleChanged) {
-            aiService.handlePostTitle(post.getId(), request.getTitle());
+            // aiService.handlePostTitle(post.getId(), request.getTitle());
+            EmbeddingRequestKafkaDTO titleRequest = new EmbeddingRequestKafkaDTO(post.getId(), request.getTitle(), EmbeddingType.TITLE);
+            kafkaProducerService.sendMessage(KAFKA_TOPIC, titleRequest);
         }
         if (contentChanged) {
-            aiService.handlePostContent(post.getId(), request.getContent());
+            // aiService.handlePostContent(post.getId(), request.getContent());
+            EmbeddingRequestKafkaDTO contentRequest = new EmbeddingRequestKafkaDTO(post.getId(), request.getContent(), EmbeddingType.CONTENT);
+            kafkaProducerService.sendMessage(KAFKA_TOPIC, contentRequest);
         }
 
         post.update(

@@ -5,6 +5,8 @@ import Bubble.bubblog.domain.user.dto.authRes.ReissueResponseDTO;
 import Bubble.bubblog.domain.user.dto.authRes.TokensDTO;
 import Bubble.bubblog.domain.user.dto.req.LoginRequestDTO;
 import Bubble.bubblog.domain.user.dto.req.SignupRequestDTO;
+import Bubble.bubblog.global.dto.swaggerResponse.auth.LoginSuccessResponse;
+import Bubble.bubblog.global.dto.swaggerResponse.auth.ReissueSuccessResponse;
 import Bubble.bubblog.domain.user.entity.User;
 import Bubble.bubblog.domain.user.service.UserAuthService;
 import Bubble.bubblog.global.dto.ErrorResponse;
@@ -52,7 +54,7 @@ public class AuthController {
     @Operation(summary = "로그인", description = "로그인을 시도합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = LoginSuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "이메일 또는 비밀번호가 잘못되었습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -109,7 +111,7 @@ public class AuthController {
     @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 검증하고 새 액세스 토큰 및 리프레시 토큰을 발급합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "재발급 성공",
-                    content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ReissueSuccessResponse.class))),
             @ApiResponse(responseCode = "401", description = "리프레시 토큰이 유효하지 않거나 만료됨",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })

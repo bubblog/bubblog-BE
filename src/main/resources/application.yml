@@ -16,7 +16,7 @@ springdoc:
 
 logging:
   level:
-    root: INFO
-    org.springframework: WARN
+    root: DEBUG
+    org.springframework: DEBUG
     org.hibernate.SQL: DEBUG
 

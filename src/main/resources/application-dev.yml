@@ -20,19 +20,13 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true
     database: postgresql
 
   data:
     redis:
-      host: localhost
-      port: 6379
-
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
 cloud:
   aws:

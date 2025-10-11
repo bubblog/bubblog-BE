@@ -49,8 +49,9 @@ public enum ErrorCode {
     NO_PERMISSION_TO_EDIT_COMMENT(403, "해당 댓글을 수정할 권한이 없습니다."),
     NO_PERMISSION_TO_DELETE_COMMENT(403, "해당 댓글을 삭제할 권한이 없습니다."),
     NOT_ROOT_COMMENT(400, "자식 댓글의 스레드를 조회할 수 없습니다. 루트 댓글의 스레드를 조회해주세요."),
-    CANNOT_LIKE_DELETED_COMMENT(400, "삭제된 댓글에 좋아요를 누를 수 없습니다.");
+    CANNOT_LIKE_DELETED_COMMENT(400, "삭제된 댓글에 좋아요를 누를 수 없습니다."),
 
+    SERIALIZATION_ERROR(500, "데이터 직렬화에 실패했습니다.");
     // S3
 
     private final int code;

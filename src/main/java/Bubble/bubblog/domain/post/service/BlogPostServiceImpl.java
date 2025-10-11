@@ -21,18 +21,18 @@ import Bubble.bubblog.domain.user.repository.UserRepository;
 import Bubble.bubblog.global.exception.CustomException;
 import Bubble.bubblog.global.exception.ErrorCode;
 import Bubble.bubblog.global.service.AiService;
+import Bubble.bubblog.global.service.EmbeddingProducer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BlogPostServiceImpl implements BlogPostService {
@@ -46,6 +46,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final PostTagRepository postTagRepository;
     private final AiService aiService;
     private final CommentRepository commentRepository;
+    private final EmbeddingProducer embeddingProducer;
 
     @Transactional
     @Override
@@ -73,16 +74,17 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         List<String> tags = request.getTags();   // tag 리스트를 프론트에서 받음
 
-        for (String tagName : tags) {
-            Tag tag = tagRepository.findByName(tagName)
-                    .orElseGet(() -> tagRepository.save(new Tag(tagName)));
+        if (tags != null) {
+            for (String tagName : tags) {
+                Tag tag = tagRepository.findByName(tagName)
+                        .orElseGet(() -> tagRepository.save(new Tag(tagName)));
 
-            postTagRepository.save(new PostTag(post, tag));
+                postTagRepository.save(new PostTag(post, tag));
+            }
         }
 
-        // AI 서버에 임베딩 요청
-        aiService.handlePostTitle(post.getId(), post.getTitle());
-        aiService.handlePostContent(post.getId(), post.getContent());
+        // Redis 큐로 임베딩 요청 전송
+        embeddingProducer.sendEmbeddingRequest(post.getId(), true, true);
 
         return new BlogPostDetailDTO(post, categoryList, tags);
     }
@@ -206,14 +208,6 @@ public class BlogPostServiceImpl implements BlogPostService {
         boolean titleChanged   = !Objects.equals(oldTitle, request.getTitle());
         boolean contentChanged = !Objects.equals(oldContent, request.getContent());
 
-        // 분기 처리
-        if (titleChanged) {
-            aiService.handlePostTitle(post.getId(), request.getTitle());
-        }
-        if (contentChanged) {
-            aiService.handlePostContent(post.getId(), request.getContent());
-        }
-
         post.update(
                 request.getTitle(),
                 request.getContent(),
@@ -223,16 +217,33 @@ public class BlogPostServiceImpl implements BlogPostService {
                 category
         );
 
-        // 기존 태그 관계 삭제
-        postTagRepository.deleteByPost(post);
-        
+        // 기존 태그 관계를 모두 끊음
+        post.getPostTags().clear();
+
+        // flush()로 예약 되어 있던 clear()명령어를 바로 처리
+        // 처리하지 않으면 clear()를 예약한 상태에서 Insert가 먼저 진행되고,
+        // 만약 tag 내용의 변화가 없을 때 수정된 게시글 Insert 시 (postId, tagId)키값의 중복 제약이 걸림
+        blogPostRepository.flush();
+
+        // 요청받은 태그 리스트를 가져옴
         List<String> tags = request.getTags();
 
         // 새 태그 저장
-        for (String tagName : tags) {
-            Tag tag = tagRepository.findByName(tagName)
-                    .orElseGet(() -> tagRepository.save(new Tag(tagName)));
-            post.addTag(tag);
+        if (tags != null) {
+            for (String tagName : tags) {
+                Tag tag = tagRepository.findByName(tagName)
+                        .orElseGet(() -> tagRepository.save(new Tag(tagName)));
+                post.addTag(tag);
+            }
+        }
+
+        // 레디스 큐로 LPUSH
+        if(titleChanged || contentChanged){
+            embeddingProducer.sendEmbeddingRequest(
+                    post.getId(),
+                    titleChanged,   // title 수정 여부
+                    contentChanged  // content 수정 여부
+            );
         }
 
         return new BlogPostDetailDTO(post, categoryList, tags);

@@ -5,8 +5,12 @@ services:
     image: redis:latest
     container_name: redis
     restart: always
+    ports:
+      - "6379:6379"   # 외부 접속 가능하도록 포트 바인딩 추가
+    command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]  # 외부 허용 설정
     volumes:
       - redis_data:/data
+
 
   spring:
     image: mdy3722/bubblog-springboot:latest

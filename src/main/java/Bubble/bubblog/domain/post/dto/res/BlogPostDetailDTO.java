@@ -40,6 +40,6 @@ public class BlogPostDetailDTO {
         this.userId = post.getUser().getId();
         this.nickname = post.getUser().getNickname();
         this.categoryList = categoryList;
-        this.tags = tags;
+        this.tags = tags != null ? tags : List.of();
     }
 }

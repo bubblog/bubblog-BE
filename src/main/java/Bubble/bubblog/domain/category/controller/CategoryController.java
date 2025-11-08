@@ -98,7 +98,7 @@ public class CategoryController {
         return SuccessResponse.of(categoryService.getAllCategoriesAsDto(userId));
     }
 
-    @Operation(summary = "카테고리 트리 조회", description = "유저의 모든 카테고리를 트리 구조로 조회합니다.")
+    @Operation(summary = "카테고리 트리 조회", description = "유저의 모든 카테고리를 트리 구조로 조회합니다.", security = {})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = CategoryTreeSuccessResponse.class)))

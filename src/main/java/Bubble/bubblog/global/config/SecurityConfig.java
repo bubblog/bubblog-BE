@@ -52,6 +52,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/users/{userId}").permitAll()
                                 // 댓글 조회 관련 API 허용
                                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+                                // 카테고리 트리 조회 API 허용
+                               .requestMatchers(HttpMethod.GET, "/api/categories/*/tree").permitAll()
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
                 )

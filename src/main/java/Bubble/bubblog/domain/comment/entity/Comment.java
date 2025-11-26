@@ -107,4 +107,10 @@ public class Comment {
         this.deletedAt = null;
     }
 
+    public void softDeleteRecursive() {
+        this.softDelete();
+        if (children != null) {
+            children.forEach(Comment::softDeleteRecursive);
+        }
+    }
 }

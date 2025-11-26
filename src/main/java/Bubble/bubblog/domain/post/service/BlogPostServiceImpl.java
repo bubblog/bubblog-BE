@@ -3,6 +3,7 @@ package Bubble.bubblog.domain.post.service;
 import Bubble.bubblog.domain.category.entity.Category;
 import Bubble.bubblog.domain.category.repository.CategoryClosureRepository;
 import Bubble.bubblog.domain.category.repository.CategoryRepository;
+import Bubble.bubblog.domain.comment.entity.Comment;
 import Bubble.bubblog.domain.comment.repository.CommentRepository;
 import Bubble.bubblog.domain.post.dto.req.BlogPostRequestDTO;
 import Bubble.bubblog.domain.post.dto.res.BlogPostDetailDTO;
@@ -29,7 +30,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -180,6 +184,8 @@ public class BlogPostServiceImpl implements BlogPostService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_POST_ACCESS);
         }
 
+        List<Comment> comments = commentRepository.findRootCommentsByPostId(postId);
+        comments.forEach(Comment::softDeleteRecursive);
         blogPostRepository.delete(post);
 
     }

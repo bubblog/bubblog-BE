@@ -18,6 +18,4 @@ logging:
   level:
     root: INFO           # 애플리케이션 전체는 INFO로
     org.springframework: WARN  # 스프링 내부 디버그 로그는 최소화
-    org.hibernate.SQL: DEBUG  # SQL 쿼리만 보고 싶으면 DEBUG 유지
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # 바인딩 값 보고 싶으면
-
+    org.hibernate: WARN
